@@ -1,8 +1,27 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<BigFourApp.Models.Event.Evento>
+
+@{
+    ViewData["Title"] = "Próximos Eventos";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>@ViewData["Title"]</h2>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+@foreach (var ev in Model)
+{
+    var image = ev.Images.FirstOrDefault()?.Url ?? "https://via.placeholder.com/250";
+
+
+    <div style="border: 1px solid #ccc; padding: 10px; width: 250px;">
+        <img src="@image" alt="@ev.Name" style="width: 100%; height: auto;" />
+        <h3>@ev.Name</h3>
+
+        <p>@ev.Date.ToString("yyyy-MM-dd")</p>
+
+
+        <p>
+            <a asp-controller="Events" asp-action="Detalles" asp-route-id="@ev.Id_Evento" class="btn btn-primary">Ver Detalles</a>
+        </p>
+    </div>
+}
 </div>
