@@ -21,8 +21,6 @@ using (var scope = app.Services.CreateScope())
     {
         JsonLoader.LoadEvents(context); // Llama al metodo que lee el JSON
     }
-
-    SeatSeeder.EnsureSeats(context); // Genera asientos para los eventos disponibles
 }
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -45,3 +43,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+
