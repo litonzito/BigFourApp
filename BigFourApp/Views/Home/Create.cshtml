@@ -1,0 +1,38 @@
+﻿@model BigFourApp.Models.Usuario
+
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<h1>Create User</h1>
+
+<form asp-action="Create" method="post" class="needs-validation" novalidate>
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" maxlength="100" />
+        <div class="form-text">Máximo 100 caracteres</div>
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Apellido" class="form-label"></label>
+        <input asp-for="Apellido" class="form-control" maxlength="100" />
+        <div class="form-text">Máximo 100 caracteres</div>
+        <span asp-validation-for="Apellido" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" maxlength="100" />
+        <div class="form-text">Máximo 100 caracteres</div>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Telefono" class="form-label"></label>
+        <input asp-for="Telefono" class="form-control" maxlength="100" />
+        <div class="form-text">Máximo 100 caracteres</div>
+        <span asp-validation-for="Telefono" class="text-danger"></span>
+    </div>
+
+    
+
+    <button type="submit" class="btn btn-primary">Publicar</button>
+</form>

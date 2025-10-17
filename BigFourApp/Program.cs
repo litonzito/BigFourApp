@@ -1,3 +1,4 @@
+using BigFourApp.Data;
 using BigFourApp.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,10 +7,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddDbContext<BaseDatos>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+builder.Services.AddDbContext<BaseDatos>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+//builder.Services.AddScoped<IEventRepository, EventRepository>();
 
 var app = builder.Build();
+// Crear base de datos automáticamente (solo en desarrollo)
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<BaseDatos>();
 
+    context.Database.Migrate(); // aplica migraciones pendientes
+    if(!context.Events.Any())// Verifica si la tabla Events está vacía
+        JsonLoader.LoadEvents(context); // Aquí llamas al método que lee el JSON 
+}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -17,6 +27,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseRouting();
