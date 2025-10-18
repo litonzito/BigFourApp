@@ -1,0 +1,69 @@
+﻿@model BigFourApp.Models.ViewModels.SeatSelectionViewModel
+
+@{
+    ViewData["Title"] = "Compra confirmada";
+    var nombre = ViewBag.Nombre as string;
+    var apellido = ViewBag.Apellido as string;
+    var metodoPago = ViewBag.MetodoPago as string;
+}
+
+<div class="container my-5" id="receipt-content">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4 text-center">
+            <h1 class="display-6 mb-3 text-success">¡Compra confirmada!</h1>
+            <p>Tu compra para el evento <strong>@Model.EventName</strong> se ha procesado exitosamente.</p>
+
+            @if (!string.IsNullOrWhiteSpace(Model.VenueName))
+            {
+                <p>@Model.VenueName — @($"{Model.City}, {Model.State}".Trim().Trim(','))</p>
+            }
+            <p class="text-muted">Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+            <hr class="my-4" />
+
+            <h5 class="fw-semibold mb-3">Detalles del comprador</h5>
+            @if (!string.IsNullOrWhiteSpace(nombre) || !string.IsNullOrWhiteSpace(apellido))
+            {
+                <p><strong>Cliente:</strong> @($"{nombre} {apellido}".Trim())</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(metodoPago))
+            {
+                <p><strong>Método de pago:</strong> @metodoPago</p>
+            }
+
+            <hr class="my-4" />
+
+            <h5 class="fw-semibold mb-3">Asientos adquiridos</h5>
+            <ul class="list-group mb-3 text-start">
+                @foreach (var item in Model.CartItems)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@item.Label</span>
+                        <span>$@item.Price.ToString("0.00")</span>
+                    </li>
+                }
+            </ul>
+
+            <div class="d-flex justify-content-between fw-bold mb-4">
+                <span>Total</span>
+                <span>@Model.Subtotal.ToString("C")</span>
+            </div>
+
+            <div class="text-center">
+                <button type="button" class="btn btn-outline-primary me-2" id="downloadReceiptBtn">
+                    Descargar recibo (PDF)
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Volver al inicio</a>
+            </div>
+
+            <div class="text-muted small mt-3">
+                Gracias por tu compra. Recibirás un correo con los detalles de tu orden.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="~/js/receipt-pdf.js" asp-append-version="true"></script>
+

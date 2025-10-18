@@ -1,0 +1,162 @@
+@model BigFourApp.Models.ViewModels.SeatSelectionViewModel
+@{
+    ViewData["Title"] = "Selecciona tus asientos";
+    var seatmapUrl = string.IsNullOrWhiteSpace(Model.SeatmapUrl)
+        ? Url.Content("~/images/seatmap.png")
+        : Model.SeatmapUrl;
+}
+
+<div class="container my-4">
+    <div class="mb-4">
+        <h1 class="display-6">@Model.EventName</h1>
+        <div class="text-muted">
+            @if (!string.IsNullOrWhiteSpace(Model.VenueName))
+            {
+                <span>@Model.VenueName</span>
+                if (!string.IsNullOrWhiteSpace(Model.City) || !string.IsNullOrWhiteSpace(Model.State))
+                {
+                    <span> - @($"{Model.City}, {Model.State}".Trim().Trim(','))</span>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Izquierda: mapa del recinto -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header fw-semibold">Mapa de asientos</div>
+                <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 420px;">
+                    <img src="@seatmapUrl" class="img-fluid" alt="Mapa de asientos" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Centro: secciones -> filas -> asientos -->
+        <div class="col-12 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header fw-semibold">Secciones</div>
+                <div class="card-body">
+                    <div class="accordion overflow-auto" id="sectionsAccordion" style="max-height: 520px;">
+                        @foreach (var sectionVm in Model.Sections)
+                        {
+                            var secId = $"acc-{sectionVm.SectionId}";
+                            var sectionName = sectionVm.Name.Replace("Section", "Seccion");
+                            <div class="accordion-item mb-2">
+                                <h2 class="accordion-header" id="heading-@secId">
+                                    <button class="accordion-button collapsed py-2" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#collapse-@secId"
+                                            aria-expanded="false" aria-controls="collapse-@secId">
+                                        @sectionName
+                                    </button>
+                                </h2>
+                                <div id="collapse-@secId" class="accordion-collapse collapse"
+                                     aria-labelledby="heading-@secId" data-bs-parent="#sectionsAccordion">
+                                    <div class="accordion-body">
+                                        @if (!sectionVm.Rows.Any())
+                                        {
+                                            <div class="text-muted small">No hay asientos disponibles en esta seccion.</div>
+                                        }
+                                        else
+                                        {
+                                            foreach (var row in sectionVm.Rows)
+                                            {
+                                                var rowId = $"{sectionVm.SectionId}-{row.RowId}";
+                                                var rowName = row.Name.Replace("Row", "Fila");
+                                                <div class="mb-2">
+                                                    <button class="btn btn-sm btn-outline-secondary w-100 text-start mb-2"
+                                                            type="button" data-bs-toggle="collapse" data-bs-target="#row-@rowId"
+                                                            aria-expanded="false" aria-controls="row-@rowId">
+                                                        @rowName
+                                                    </button>
+
+                                                    <div id="row-@rowId" class="collapse">
+                                                        <div class="d-flex flex-wrap gap-2">
+                                                            @foreach (var seat in row.Seats)
+                                                            {
+                                                               var seatLabel = seat.Label
+                                                                   .Replace("Section", "Seccion")
+                                                                   .Replace("Seat", "Asiento");
+                                                               <div class="form-check">
+                                                                     <input class="form-check-input seat-checkbox"
+                                                                            type="checkbox"
+                                                                            id="chk-@seat.SeatId"
+                                                                            data-seat-id="@seat.SeatId"
+                                                                            data-seat-label="@seatLabel"
+                                                                            data-seat-price="@seat.Price"
+                                                                            data-seat-state="@seat.State"
+                                                                            @(seat.IsAvailable ? "" : "disabled") />
+                                                                     <label class="form-check-label small" for="chk-@seat.SeatId">
+                                                                         @seatLabel <span class="text-muted">Precio: $@seat.Price.ToString("0.00")</span>
+                                                                         @if (!seat.IsAvailable)
+                                                                         {
+                                                                             <span class="badge bg-secondary ms-1">@seat.State</span>
+                                                                         }
+                                                                     </label>
+                                                                 </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Derecha: resumen de asientos seleccionados -->
+        <div class="col-12 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header fw-semibold">Tus asientos</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" id="cartList"></ul>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">Subtotal:</span>
+                        <span class="fw-bold" id="subtotalLabel">$0.00</span>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary w-100 mb-2" id="openSummaryBtn">
+                        Revisar seleccion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de resumen (solo cliente) -->
+<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="summaryModalLabel">Resumen de seleccion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eventId" value="@Model.EventId" />
+        <ul class="list-group mb-3" id="summaryList"></ul>
+        <div class="d-flex justify-content-between">
+            <span class="fw-semibold">Subtotal:</span>
+            <span class="fw-bold" id="summarySubtotal">$0.00</span>
+        </div>
+        <hr />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+         <button type="button" class="btn btn-primary" id="proceedCheckoutBtn">
+           Ir al carrito
+         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/seat-selection.js" asp-append-version="true"></script>
+}

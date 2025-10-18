@@ -1,0 +1,70 @@
+﻿@model BigFourApp.Models.ViewModels.SeatSelectionViewModel
+
+@{
+    ViewData["Title"] = "Carrito";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">Carrito — @Model.EventName</h1>
+
+                    @if (Model.CartItems == null || !Model.CartItems.Any())
+                    {
+                        <div class="alert alert-info">No hay asientos seleccionados.</div>
+                        <a asp-controller="Seat" asp-action="Index" asp-route-id="@Model.EventId" class="btn btn-outline-primary">Volver a selección</a>
+                    }
+                    else
+                    {
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Asiento</th>
+                                    <th class="text-end">Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var it in Model.CartItems)
+                                {
+                                    <tr>
+                                        <td>@it.Label</td>
+                                        <td class="text-end">@it.Price.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="d-flex justify-content-between fw-bold mt-3">
+                            <span>Total</span>
+                            <span>@Model.Subtotal.ToString("C")</span>
+                        </div>
+
+                        <div class="alert alert-warning mt-4" role="alert">
+                            ⚠️ <strong>Precaución:</strong> Al proceder con el pago <u>no podrás volver a la selección de asientos</u>.
+                            Asegúrate de que tu selección es correcta antes de continuar.
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a asp-controller="Seat" asp-action="Index" asp-route-id="@Model.EventId" class="btn btn-outline-secondary">
+                                Volver a selección
+                            </a>
+
+                            <form method="get" asp-controller="Checkout" asp-action="Payment" class="d-inline">
+                                <input type="hidden" name="id" value="@Model.EventId" />
+                                @foreach (var it in Model.CartItems)
+                                {
+                                    <input type="hidden" name="seatIds" value="@it.SeatId" />
+                                }
+                                <button type="submit" class="btn btn-success">
+                                    Proceder al pago
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

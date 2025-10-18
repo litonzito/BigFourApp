@@ -1,0 +1,178 @@
+{
+  "_embedded": {
+    "events": [
+      {
+        "name": "Duran Duran",
+        "type": "event",
+        "id": "1Av0ZbwGkS0dwMO",
+        "test": false,
+        "url": "https://www.ticketmaster.com/duran-duran-phoenix-arizona-01-05-2026/event/1900632CE40F2DE0",
+        "locale": "en-us",
+        "sales": {
+          "public": {
+            "startDateTime": "2025-09-19T17:00:00Z",
+            "startTBD": false,
+            "startTBA": false,
+            "endDateTime": "2026-01-06T04:30:00Z"
+          }
+        },
+        "dates": {
+          "start": {
+            "localDate": "2026-01-05",
+            "localTime": "19:30:00",
+            "dateTime": "2026-01-06T02:30:00Z"
+          },
+          "timezone": "America/Phoenix",
+          "status": { "code": "onsale" }
+        },
+        "classifications": [
+          {
+            "primary": true,
+            "segment": {
+              "id": "KZFzniwnSyZfZ7v7nJ",
+              "name": "Music"
+            },
+            "genre": {
+              "id": "KnvZfZ7vAeA",
+              "name": "Rock"
+            },
+            "subGenre": {
+              "id": "KZazBEonSMnZfZ7v6dt",
+              "name": "Alternative Rock"
+            },
+            "type": {
+              "id": "KZAyXgnZfZ7v7nI",
+              "name": "Undefined"
+            },
+            "subType": {
+              "id": "KZFzBErXgnZfZ7v7lJ",
+              "name": "Undefined"
+            }
+          }
+        ],
+        "promoters": [
+          {
+            "id": "653",
+            "name": "LIVE NATION MUSIC",
+            "description": "LIVE NATION MUSIC / NTL / USA"
+          }
+        ],
+        "info": "ALL GUESTS MUST HAVE A TICKET; NO EXCEPTIONS. Mortgage Matchup Center is now a cashless environment. Please plan on using Visa, Mastercard, American Express or Discover during your visit. Don't have a credit/debit card? Convert cash into a preloaded Mastercard by visiting one of our reverse ATMs located near the Ticket Office or Section 218! When you purchase a ticket to a Mortgage Matchup Center event, you can ride the Valley Metro Light Rail at no cost for four (4) hours prior to the event through the end of the transit day. With an increased focus on secure, contactless entry, mobile tickets will be required. All tickets will be delivered electronically with no exceptions, therefore will call is no longer available. All tickets are available via the Ticketmaster app or the Suns-Mercury-Arena app.",
+        "pleaseNote": "Please Note: Please Note: ALL GUESTS MUST HAVE A TICKET; NO EXCEPTIONS. When you purchase a ticket to a Mortgage Matchup Center event, you can ride the Valley Metro Light Rail at no cost for four (4) hours prior to the event through the end of the transit day. With an increased focus on secure, contactless entry, mobile tickets will be required. All tickets will be delivered electronically with no exceptions, therefore will call is no longer available. All tickets are available via the Ticketmaster app or the Suns-Mercury-Arena app.",
+        "products": [
+          {
+            "name": "Mortgage Matchup Center/Car Service: Duran Duran",
+            "id": "1Av0ZbwGkUTZeAC",
+            "url": "https://www.ticketmaster.com/mortgage-matchup-centercar-service-duran-duran-phoenix-arizona-01-05-2026/event/1900632DBF00214E",
+            "type": "Upsell",
+            "classifications": [
+              {
+                "primary": true,
+                "segment": {
+                  "id": "KZFzniwnSyZfZ7v7n1",
+                  "name": "Miscellaneous"
+                },
+                "genre": {
+                  "id": "KnvZfZ7v7ll",
+                  "name": "Undefined"
+                },
+                "subGenre": {
+                  "id": "KZazBEonSMnZfZ7vAv1",
+                  "name": "Undefined"
+                },
+                "type": {
+                  "id": "KZAyXgnZfZ7v7nn",
+                  "name": "Transportation"
+                },
+                "subType": {
+                  "id": "KZFzBErXgnZfZ7v7lt",
+                  "name": "Transportation"
+                },
+                "family": false
+              }
+            ]
+          }
+        ],
+        "seatmap": { "staticUrl": "https://mapsapi.tmol.io/maps/geometry/3/event/1900632CE40F2DE0/staticImage?type=png&systemId=HOST" },
+        "accessibility": { "ticketLimit": 8 },
+        "ageRestrictions": { "legalAgeEnforced": false },
+        "doorsTimes": {
+          "localDate": "2026-01-05",
+          "localTime": "18:30:00",
+          "dateTime": "2026-01-06T01:30:00Z"
+        },
+        "ticketing": {
+          "safeTix": { "enabled": true },
+          "allInclusivePricing": { "enabled": true }
+        },
+        "_embedded": {
+          "venues": [
+            {
+              "name": "Mortgage Matchup Center (formerly PHX Arena)",
+              "type": "venue",
+              "id": "KovZpZAE617A",
+              "test": false,
+              "url": "https://www.ticketmaster.com/mortgage-matchup-center-formerly-phx-arena-tickets-phoenix/venue/205079",
+              "locale": "en-us",
+              "images": [
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dbimages/25649v.jpg",
+                  "width": 640,
+                  "height": 360,
+                  "fallback": false
+                }
+              ],
+              "postalCode": "85004",
+              "timezone": "America/Phoenix",
+              "city": { "name": "Phoenix" },
+              "state": {
+                "name": "Arizona",
+                "stateCode": "AZ"
+              },
+              "country": {
+                "name": "United States Of America",
+                "countryCode": "US"
+              },
+              "address": { "line1": "201 East Jefferson Street" },
+              "location": {
+                "longitude": "-112.07131300",
+                "latitude": "33.44589900"
+              },
+              "markets": [
+                {
+                  "name": "Phoenix and Tucson",
+                  "id": "36"
+                }
+              ],
+              "dmas": [
+                { "id": 359 },
+                { "id": 402 },
+                { "id": 420 }
+              ],
+              "boxOfficeInfo": {
+                "phoneNumberDetail": "Northwest side of Mortgage Matchup Center in the Pavilion.(602)379-7800 Suns Game Nights call (602)379-7867",
+                "openHoursDetail": "The Mortgage Matchup Center ticket office will be open at 3pm on weekday events and three (3) hours prior to event time for weekends. For any further questions or ticket inquiries, please reach out to feedback@suns.com or call the Mortgage Matchup Center ticket office at (602) 379-7800.",
+                "acceptedPaymentDetail": "The Mortgage Matchup Center accepts the following methods of payment at the Box Office:VISA MASTERCARD DISCOVER AMERICAN EXPRESS CASH, MORTGAGE MATCHUP CENTER NO LONGER ACCEPTS CHECKS",
+                "willCallDetail": "The WILL CALL windows open two hours prior to events and are located on the Northwest side of the building in the Pavilion. WILL CALL PICK-UP: The Mortgage Matchup Center requires that customers picking up WILL CALL tickets furnish the following: 1) PICTURE IDENTIFICATION THAT MATCHES THE PICK-UP NAME 2) CONFIRMATION NUMBER THAT MATCHES THE CUSTOMER ACCOUNT ALTERNATE WILL CALL PICK-UP: If another person, other than the person ordering and paying for the tickets, is picking up a WILL CALL order, the ALTERNATE PICK-UP name MUST be on the account. To get the alternate pick-up name noted on the account, the original purchaser MUST contact Ticketmaster at (1-800-745-3000), ask for customer service to verify account information and request alternate pick-up."
+              },
+              "parkingDetail": "Adjacent parking structure at 1st and Madison. Many other parking lots and structures within a 10 minute walk of Mortgage Matchup Center. Prices vary by event. Parking and Direction hotline (602)514-8472",
+              "accessibleSeatingDetail": "PHOENIX SUNS: To purchase Phoenix Suns tickets for people with disabilities, subject to availability, please call Mortgage Matchup Center at (602)379-7867 or visit Mortgage Matchup Center ticket office. Accessible tickets can also be purchased at all Ticketmaster locations, by calling (800)745-3000 or online at ticketmaster.com. PHOENIX MERCURY: To purchase Phoenix Mercury tickets for people with disabilities, subject to availability, please call Mortgage Matchup Center at (602)252-9622 or visit the Mortgage Matchup Center ticket office. Accessible tickets can also be purchased at all Ticketmaster locations, by calling (800)745-3000 or online at ticketmaster.com. ARENA CONCERTS AND OTHER EVENTS: To purchase concert or other event tickets for people with disabilities, subject to availability, please call Mortgage Matchup Center at (602)379-7800 or visit Mortgage Matchup Center ticket office. Accessible tickets can also be purchased at all Ticketmaster locations, by calling (800)745-3000 or online at ticketmaster.com.",
+              "generalInfo": {
+                "generalRule": "New security procedures have been implemented at Mortgage Matchup Center. No backpacks or large purses will be allowed. Small purses and fanny packs will be subject to search. Every individual entering the arena will be subject to search. Every vehicle entering the building will be subject to search. Sealed water bottles (1 litre or smaller) allowed in building. No other outside concessions allowed. No pets other than \"assisting\" animals. Smoking in Facility: Mortgage Matchup Center is a non-smoking facility. Smoking areas outside building are available, depending on event. NON professional cameras only (depending on event) No Laser Pointers allowed No Video Cameras allowed No Recorders allowed",
+                "childRule": "Please contact the Mortgage Matchup Center ticket office at (602)379-7800, for information. Child policy Varies by event. Children age three (3) and above require a ticket for Phoenix Suns and Phoenix Mercury."
+              },
+              "upcomingEvents": {
+                "archtics": 242,
+                "tmr": 1,
+                "ticketmaster": 81,
+                "_total": 324,
+                "_filtered": 0
+              }            
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "events": [
+    {
+      "id": "1Av0ZbwGkS0dwMO",
+      "name": "Duran Duran",
+      "url": "https://www.ticketmaster.com/duran-duran-phoenix-arizona-01-05-2026/event/1900632CE40F2DE0",
+      "dates": {
+        "start": {
+          "localDate": "2026-01-05",
+          "localTime": "19:30:00"
+        }
+      },
+      "venues": [
+        {
+          "name": "Mortgage Matchup Center",
+          "city": "Phoenix",
+          "state": "AZ"
+        }
+      ],
+      "classifications": [
+        {
+          "segment": { "name": "Music" },
+          "genre": { "name": "Rock" },
+          "subGenre": { "name": "Alternative Rock" }
+        }
+      ],
+      "ticketing": {
+        "safeTix": { "enabled": true }
+      },
+      "images": [
+        {
+          "url": "https://s1.ticketm.net/dbimages/25649v.jpg"
+        }
+      ],
+      "seatmap": {
+        "staticUrl": "https://mapsapi.tmol.io/maps/geometry/3/event/1900632CE40F2DE0/staticImage?type=png&systemId=HOST"
+      }
+    }
+  ]
+}

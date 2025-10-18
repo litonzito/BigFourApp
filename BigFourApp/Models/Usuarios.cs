@@ -1,13 +1,20 @@
-﻿namespace BigFourApp.Models
+﻿
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+namespace BigFourApp.Models
 {
-    public class Usuarios
+    public class Usuario
     {
         public int Id_Usuario { get; set; }
         public int ventaId { get; set; }
-        public string Nombre { get; set; }
-        public string Apellido { get; set; }
-        public string Email { get; set; }
-        public string Telefono { get; set; }
+        [Required]
+        public string Nombre { get; set; } = null!;
+        public string Apellido { get; set; } = "";
+        [Required]
+        public string Email { get; set; } = null!;
+        [Required]
+        public string Telefono { get; set; } = null!;
 
         public List<Venta> Ventas { get; set; }
 
