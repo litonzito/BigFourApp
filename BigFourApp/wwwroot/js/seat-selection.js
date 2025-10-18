@@ -80,4 +80,40 @@
     const modal = bootstrap.Modal.getOrCreateInstance(summaryModalEl);
     modal.show();
   });
+
+    // Envia los asientos seleccionados al servidor cuando el usuario confirma el resumen
+    const proceedBtn = document.getElementById("proceedCheckoutBtn");
+    const eventId = document.getElementById("eventId")?.value;
+
+    proceedBtn?.addEventListener("click", () => {
+        const selectedSeatIds = [...cart.values()].map(item => item.seatId);
+
+        if (selectedSeatIds.length === 0) {
+            alert("Selecciona al menos un asiento antes de continuar.");
+            return;
+        }
+
+        fetch("/Seat/Checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                eventId: eventId,
+                seatIds: selectedSeatIds
+            })
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    return response.text();
+                } else {
+                    alert("Error al ir al checkout.");
+                }
+            })
+            .then(html => {
+                if (html) document.body.innerHTML = html;
+            })
+            .catch(err => console.error("Error al ir al checkout:", err));
+    });
+
 })();

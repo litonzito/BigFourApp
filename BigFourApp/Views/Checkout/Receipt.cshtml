@@ -1,0 +1,24 @@
+﻿@model BigFourApp.Models.ViewModels.SeatSelectionViewModel
+
+@{
+    ViewData["Title"] = "Compra confirmada";
+}
+
+<div class="container my-5">
+    <div class="text-center">
+        <h1 class="display-6 mb-4 text-success">¡Compra confirmada!</h1>
+
+        <p>Tu compra para el evento <strong>@Model.EventName</strong> fue procesada exitosamente.</p>
+
+        @if (!string.IsNullOrWhiteSpace(Model.VenueName))
+        {
+            <p>@Model.VenueName — @($"{Model.City}, {Model.State}".Trim().Trim(','))</p>
+        }
+
+        <hr />
+
+        <p>Gracias por tu compra.</p>
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Volver al inicio</a>
+    </div>
+</div>

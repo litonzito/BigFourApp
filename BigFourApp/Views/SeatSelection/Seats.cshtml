@@ -124,9 +124,6 @@
                     <button type="button" class="btn btn-outline-primary w-100 mb-2" id="openSummaryBtn">
                         Revisar seleccion
                     </button>
-                    <a class="btn btn-primary w-100" asp-action="Checkout" asp-route-id="@Model.EventId">
-                        Continuar al pago
-                    </a>
                 </div>
             </div>
         </div>
@@ -142,18 +139,19 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="eventId" value="@Model.EventId" />
         <ul class="list-group mb-3" id="summaryList"></ul>
         <div class="d-flex justify-content-between">
             <span class="fw-semibold">Subtotal:</span>
             <span class="fw-bold" id="summarySubtotal">$0.00</span>
         </div>
         <hr />
-        <div class="small text-muted">
-            El proceso de compra aun no esta implementado.
-        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+         <button type="button" class="btn btn-primary" id="proceedCheckoutBtn">
+           Ir al carrito
+         </button>
       </div>
     </div>
   </div>

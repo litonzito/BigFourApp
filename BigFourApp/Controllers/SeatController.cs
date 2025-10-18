@@ -80,21 +80,31 @@ namespace BigFourApp.Controllers
         public IActionResult Checkout(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
-            {
                 return BadRequest("Event id is required.");
-            }
 
             var evento = _context.Events
                 .Include(e => e.Venues)
                 .FirstOrDefault(e => e.Id_Evento == id);
 
             if (evento is null)
-            {
                 return NotFound();
-            }
 
-            return View("~/Views/Checkout/Index.cshtml", evento);
+            var v = evento.Venues.FirstOrDefault();
+
+            var vm = new SeatSelectionViewModel
+            {
+                EventId = evento.Id_Evento,
+                EventName = evento.Name,
+                VenueName = v?.Name,
+                City = v?.City,
+                State = v?.State,
+                CartItems = new List<CartItemVM>(),
+                Subtotal = 0m
+            };
+
+            return View("~/Views/Checkout/Cart.cshtml", vm);
         }
+
         /// <summary>
         /// Construye las secciones y filas basándose en la lista de asientos proporcionada.
         /// </summary>
@@ -193,5 +203,71 @@ namespace BigFourApp.Controllers
             price = Math.Round(price, 2, MidpointRounding.AwayFromZero);
             return price < 25m ? 25m : price;
         }
+
+        [HttpPost]
+        public IActionResult Checkout([FromBody] CheckoutRequest payload)
+        {
+            if (payload == null || string.IsNullOrWhiteSpace(payload.EventId) || payload.SeatIds == null || payload.SeatIds.Count == 0)
+                return BadRequest("Datos inválidos.");
+
+            var evento = _context.Events
+                .Include(e => e.Venues)
+                .Include(e => e.Asientos)
+                .FirstOrDefault(e => e.Id_Evento == payload.EventId);
+            if (evento is null) return NotFound();
+
+            var ids = new HashSet<int>();
+            foreach (var s in payload.SeatIds)
+                if (int.TryParse(s, out var n)) ids.Add(n);
+
+            var allSeats = evento.Asientos
+                .Where(a => string.Equals(a.EventId, evento.Id_Evento, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(a => a.Numero)
+                .ToList();
+
+            var totalRows = Math.Max(1, (allSeats.Count + SeatsPerRow - 1) / SeatsPerRow);
+            var rowBySeatId = new Dictionary<int, int>();
+            for (int i = 0; i < allSeats.Count; i++)
+            {
+                var seat = allSeats[i];
+                var rowNumber = (i / SeatsPerRow) + 1;
+                rowBySeatId[seat.Id_Asiento] = rowNumber;
+            }
+
+            var selected = allSeats.Where(a => ids.Contains(a.Id_Asiento)).ToList();
+
+            var cartItems = selected.Select(s =>
+            {
+                var rowNumber = rowBySeatId[s.Id_Asiento];
+                var price = CalculatePrice(rowNumber, totalRows, DefaultBasePrice);
+                return new CartItemVM
+                {
+                    SeatId = s.Id_Asiento.ToString(),
+                    Label = $"Asiento {s.Numero}",
+                    Price = price
+                };
+            }).ToList();
+
+            var vm = new SeatSelectionViewModel
+            {
+                EventId = evento.Id_Evento,
+                EventName = evento.Name,
+                VenueName = evento.Venues.FirstOrDefault()?.Name,
+                City = evento.Venues.FirstOrDefault()?.City,
+                State = evento.Venues.FirstOrDefault()?.State,
+                Sections = new List<SectionVM>(),
+                CartItems = cartItems,
+                Subtotal = cartItems.Sum(x => x.Price)
+            };
+
+            return View("~/Views/Checkout/Cart.cshtml", vm);
+        }
+
+        public class CheckoutRequest
+        {
+            public string EventId { get; set; } = "";
+            public List<string> SeatIds { get; set; } = new();
+        }
+
     }
 }

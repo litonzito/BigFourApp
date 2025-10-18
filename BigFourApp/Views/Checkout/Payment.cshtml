@@ -1,0 +1,101 @@
+﻿@model BigFourApp.Models.ViewModels.SeatSelectionViewModel
+
+@{
+    ViewData["Title"] = "Pago";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">Pago — @Model.EventName</h1>
+
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-2">Resumen</h6>
+                        <ul class="list-group">
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@item.Label</span>
+                                    <span>@item.Price.ToString("C")</span>
+                                </li>
+                            }
+                        </ul>
+                        <div class="d-flex justify-content-between fw-bold mt-3">
+                            <span>Total</span>
+                            <span>@Model.Subtotal.ToString("C")</span>
+                        </div>
+                    </div>
+
+                    <!-- Formulario simple; el guardado real se hace en SeatController.ConfirmPurchase -->
+                    <form method="post" asp-controller="Checkout" asp-action="ConfirmPurchase" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="eventId" value="@Model.EventId" />
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <input type="hidden" name="seatIds" value="@item.SeatId" />
+                        }
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-control" required />
+                                <div class="invalid-feedback">Requerido.</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label">Apellido</label>
+                                <input type="text" class="form-control" required />
+                                <div class="invalid-feedback">Requerido.</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Correo</label>
+                                <input type="email" class="form-control" required />
+                                <div class="invalid-feedback">Correo inválido.</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="mb-3">Tarjeta</h6>
+                        <div class="row gy-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre en la tarjeta</label>
+                                <input type="text" class="form-control" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Número</label>
+                                <input type="text" class="form-control" placeholder="1111 2222 3333 4444" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Expiración</label>
+                                <input type="text" class="form-control" placeholder="MM/AA" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-control" placeholder="123" required />
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                                Cancelar compra
+                            </a>
+
+                            <button type="submit" class="btn btn-primary ms-3">
+                                Confirmar compra
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/checkout.js"></script>
+}
