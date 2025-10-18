@@ -21,6 +21,9 @@ using (var scope = app.Services.CreateScope())
     {
         JsonLoader.LoadEvents(context); // Llama al metodo que lee el JSON
     }
+
+    // Genera asientos para los eventos que lo necesiten al arrancar la aplicacion.
+    SeatSeeder.EnsureSeats(context);
 }
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
