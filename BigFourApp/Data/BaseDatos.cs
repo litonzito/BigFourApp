@@ -17,7 +17,7 @@ namespace BigFourApp.Persistence
         public DbSet<Evento> Events { get; set; }
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Classification> Classifications { get; set; }
-        public DbSet<Images> Images { get; set; }
+    
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // --- 🔹 Claves primarias ---
@@ -29,7 +29,7 @@ namespace BigFourApp.Persistence
             modelBuilder.Entity<Evento>().HasKey(e => e.Id_Evento);
             modelBuilder.Entity<Venue>().HasKey(v => v.Id_Venue);
             modelBuilder.Entity<Classification>().HasKey(c => c.Id_Classification);
-            modelBuilder.Entity<Images>().HasKey(i => i.Id_Image);
+        
 
             // --- 🔹 Relaciones de tu sistema principal ---
             // Usuario -> Ventas (1:N)
@@ -76,12 +76,7 @@ namespace BigFourApp.Persistence
                 .HasForeignKey(c => c.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Evento -> Images (1:N)
-            modelBuilder.Entity<Images>()
-                .HasOne(i => i.Event)
-                .WithMany(e => e.Images)
-                .HasForeignKey(i => i.EventId)
-                .OnDelete(DeleteBehavior.Cascade);
+         
 
             // Evento -> Asiento (1:N)
             modelBuilder.Entity<Asiento>()

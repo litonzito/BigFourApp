@@ -22,7 +22,9 @@ namespace BigFourApp.Models.Event
         public string State { get; set; } = string.Empty;
 
         [ForeignKey("EventId")]
-        public Evento? Event { get; set; } 
+        public Evento? Event { get; set; }
+        
+        public string? VenueImageUrl { get; internal set; }
     }
 
 }
