@@ -1,9 +1,9 @@
 ﻿using BigFourApp.Models.Event;
 using BigFourApp.Persistence;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BigFourApp.Data
 {
@@ -11,8 +11,7 @@ namespace BigFourApp.Data
     {
         public static void LoadEvents(BaseDatos context)
         {
-
-            // Leer JSON completo y mapear todo
+            // Leer el archivo JSON completo
             string jsonString = File.ReadAllText("eventosDiluidos.json");
             using var doc = JsonDocument.Parse(jsonString);
             var eventsJson = doc.RootElement.GetProperty("events");
@@ -27,10 +26,10 @@ namespace BigFourApp.Data
                     Date = DateTime.Parse(e.GetProperty("dates").GetProperty("start").GetProperty("localDate").GetString()),
                     SeatmapUrl = e.GetProperty("seatmap").GetProperty("staticUrl").GetString(),
                     SafeTix = e.GetProperty("ticketing").GetProperty("safeTix").GetProperty("enabled").GetBoolean(),
+                    EventImageUrl = e.GetProperty("EventImageURL").GetString(), // ✅ corregido
                     Venues = new List<Venue>(),
-                    Classifications = new List<Classification>(),
-                    Images = new List<Images>()
-                }; 
+                    Classifications = new List<Classification>()
+                };
 
                 // Venues
                 foreach (var v in e.GetProperty("venues").EnumerateArray())
@@ -39,7 +38,8 @@ namespace BigFourApp.Data
                     {
                         Name = v.GetProperty("name").GetString(),
                         City = v.GetProperty("city").GetString(),
-                        State = v.GetProperty("state").GetString()
+                        State = v.GetProperty("state").GetString(),
+                        VenueImageUrl = v.GetProperty("VenueImageURL").GetString() // ✅ corregido
                     });
                 }
 
@@ -54,20 +54,10 @@ namespace BigFourApp.Data
                     });
                 }
 
-                // Images
-                foreach (var img in e.GetProperty("images").EnumerateArray())
-                {
-                    ev.Images.Add(new Images
-                    {
-                        Url = img.GetProperty("url").GetString()
-                    });
-                }
-
                 context.Events.Add(ev);
             }
 
             context.SaveChanges();
         }
     }
-
 }

@@ -21,7 +21,6 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         var eventos = _context.Events
-            .Include(e => e.EventImageUrl)
             .Include(e => e.Venues)
             .Include(e => e.Classifications)
             .OrderBy(e => e.Date)

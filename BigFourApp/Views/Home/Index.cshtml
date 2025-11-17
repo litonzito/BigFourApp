@@ -9,7 +9,7 @@
 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
 @foreach (var ev in Model)
 {
-    var image = ev.Images.FirstOrDefault()?.Url ?? "https://via.placeholder.com/250";
+    var image = ev.EventImageUrl ?? "https://via.placeholder.com/250";
 
 
     <div style="border: 1px solid #ccc; padding: 10px; width: 250px;">

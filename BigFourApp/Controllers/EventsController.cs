@@ -22,7 +22,6 @@ public class EventsController : Controller
             return NotFound();
 
         var evento = _context.Events
-            .Include(e => e.EventImageUrl)
             .Include(e => e.Venues)
             .Include(e => e.Classifications)
             .AsEnumerable()

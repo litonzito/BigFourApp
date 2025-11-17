@@ -1,10 +1,11 @@
 @model BigFourApp.Models.Event.Evento
-
 @{
     ViewData["Title"] = "Detalles del evento";
 
     var defaultImage = "https://media.discordapp.net/attachments/1376526490480676905/1428840726589870112/07_02_21_1253437873_AAB_560x292.jpg?ex=68f3f71f&is=68f2a59f&hm=545af6c4aa069b4ae978be52a6ccdeee14ac29fe0ee393c399db22e004f495a0&=&format=webp";
-    var imageUrl = Model.Images.Any() ? Model.Images.First().Url : defaultImage;
+    var imageUrl = string.IsNullOrWhiteSpace(Model.EventImageUrl)
+    ? Url.Content("~/images/seatmap.png")
+    : Model.EventImageUrl;
 }
 
 <div class="text-center mb-4">
