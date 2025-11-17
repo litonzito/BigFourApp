@@ -4,24 +4,126 @@
     ViewData["Title"] = "Próximos Eventos";
 }
 
-<h2>@ViewData["Title"]</h2>
 
-<div style="display: flex; flex-wrap: wrap; gap: 20px;">
-@foreach (var ev in Model)
-{
-    var image = ev.EventImageUrl ?? "https://via.placeholder.com/250";
-
-
-    <div style="border: 1px solid #ccc; padding: 10px; width: 250px;">
-        <img src="@image" alt="@ev.Name" style="width: 100%; height: auto;" />
-        <h3>@ev.Name</h3>
-
-        <p>@ev.Date.ToString("yyyy-MM-dd")</p>
+<section class="hero-section d-flex flex-column justify-content-center align-items-center text-center">
+    <h1 class="hero-title">BigFourApp</h1>
+    <p class="hero-subtitle">Descubre los mejores eventos disponibles</p>
+</section>
 
 
-        <p>
-            <a asp-controller="Events" asp-action="Detalles" asp-route-id="@ev.Id_Evento" class="btn btn-primary">Ver Detalles</a>
-        </p>
+
+<div class="container mt-4" id="event-list">
+
+    <div class="row justify-content-center mb-4">
+
+        <!-- BUSCADOR DE TEXTO -->
+        <div class="col-md-4 mb-2">
+            <input class="search form-control form-control-lg shadow-sm"
+                   placeholder="Buscar eventos..." />
+        </div>
+
+        <!-- FILTRO POR FECHA -->
+        <div class="col-md-4 mb-2">
+            <select class="form-select form-select-lg shadow-sm" id="date-filter">
+                <option value="">Filtrar por fecha</option>
+                <option value="hoy">Hoy</option>
+                <option value="prox7">Próximos 7 días</option>
+                <option value="mes">Este mes</option>
+            </select>
+        </div>
+
     </div>
-}
+
+
+    <div class="row g-4 list">
+
+        @foreach (var ev in Model)
+        {
+            var image = ev.EventImageUrl ?? "https://via.placeholder.com/400x250";
+
+            <div class="col-lg-4 col-md-6 col-12 event-item">
+
+                <div class="card h-100 shadow-sm event-card">
+
+                    <img src="@image" class="card-img-top event-img" alt="@ev.Name">
+
+                    <div class="card-body d-flex flex-column">
+
+                        <!-- CAMPOS QUE USARÁ LIST.JS -->
+                        <h5 class="fw-bold name">@ev.Name</h5>
+                        <p class="text-muted mb-2 date">@ev.Date.ToString("yyyy-MM-dd")</p>
+
+                        <div class="mt-auto">
+                            <a asp-controller="Events"
+                               asp-action="Detalles"
+                               asp-route-id="@ev.Id_Evento"
+                               class="btn btn-primary w-100">
+                                Ver Detalles
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
 </div>
+
+
+
+<style>
+
+    /* HERO */
+    .hero-section {
+        height: 20vh;
+        background:  #0d6efd;
+        color: white;
+        border-bottom: 4px solid #062c6e;
+        padding: 20px;
+    }
+
+    .hero-title {
+        font-size: 2.6rem;
+        font-weight: 700;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    /* EVENTOS */
+    .event-card {
+        border-radius: 12px;
+        transition: 0.2s;
+    }
+
+    .event-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .event-img {
+        height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+
+</style>
+
+
+<!-- ========================= -->
+<!-- SCRIPTS (List.js)         -->
+<!-- ========================= -->
+@section Scripts{
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+
+    <script src="~/js/eventos-list.js" asp-append-version="true"></script>
+}
