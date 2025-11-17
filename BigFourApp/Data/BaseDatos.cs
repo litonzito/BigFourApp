@@ -18,6 +18,7 @@ namespace BigFourApp.Persistence
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Classification> Classifications { get; set; }
         public DbSet<Images> Images { get; set; }
+        public DbSet<VenueSection> VenueSections { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // --- 🔹 Claves primarias ---
@@ -94,6 +95,16 @@ namespace BigFourApp.Persistence
             modelBuilder.Entity<Asiento>()
                 .Property(a => a.Estado)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<Asiento>()
+                .Property(a => a.SectionId)
+                .HasMaxLength(64);
+
+            modelBuilder.Entity<VenueSection>()
+                .HasOne(s => s.Venue)
+                .WithMany(v => v.Sections)
+                .HasForeignKey(s => s.VenueId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // --- 🔹 Opcional: restricciones adicionales ---
             modelBuilder.Entity<Evento>().Property(e => e.Name).IsRequired().HasMaxLength(255);

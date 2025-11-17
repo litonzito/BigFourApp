@@ -1,0 +1,35 @@
+@model BigFourApp.Models.ViewModels.SoldOutViewModel
+
+@{
+    ViewData["Title"] = "Evento agotado";
+}
+
+<div class="container py-5 text-center">
+    <h1 class="display-5 fw-bold">Evento agotado</h1>
+    <p class="lead mb-4">
+        Lo sentimos, todas las localidades para <strong>@Model.EventName</strong> se encuentran agotadas.
+    </p>
+
+    <div class="card mx-auto" style="max-width: 420px;">
+        <div class="card-body">
+            <h5 class="card-title">@Model.EventName</h5>
+            <p class="mb-1">
+                <strong>Fecha:</strong> @Model.EventDate.ToString("dddd, dd 'de' MMMM 'de' yyyy")
+            </p>
+            @if (!string.IsNullOrWhiteSpace(Model.VenueName))
+            {
+                <p class="mb-0">
+                    <strong>Lugar:</strong> @Model.VenueName
+                    @if (!string.IsNullOrWhiteSpace(Model.City) || !string.IsNullOrWhiteSpace(Model.State))
+                    {
+                        <span> - @($"{Model.City}, {Model.State}".Trim().Trim(','))</span>
+                    }
+                </p>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Ver otros eventos</a>
+    </div>
+</div>

@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BigFourApp.Models.Event
 {
-
     public class Venue
     {
         [Key]
@@ -22,7 +22,8 @@ namespace BigFourApp.Models.Event
         public string State { get; set; } = string.Empty;
 
         [ForeignKey("EventId")]
-        public Evento? Event { get; set; } 
-    }
+        public Evento? Event { get; set; }
 
+        public ICollection<VenueSection> Sections { get; set; } = new List<VenueSection>();
+    }
 }

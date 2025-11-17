@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
 using BigFourApp.Data;
+using BigFourApp.Models;
 using BigFourApp.Models.Event;
 using BigFourApp.Models.Manager;
 using BigFourApp.Persistence;

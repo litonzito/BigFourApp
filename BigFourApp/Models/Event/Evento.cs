@@ -20,6 +20,7 @@ namespace BigFourApp.Models.Event
         public string SeatmapUrl { get; set; } = string.Empty;
 
         public bool SafeTix { get; set; } = false;
+        public bool IsCancelled { get; set; } = false;
 
         // Inicializar colecciones para evitar null warnings
         public ICollection<Venue> Venues { get; set; } = new List<Venue>();
