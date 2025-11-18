@@ -23,6 +23,9 @@ namespace BigFourApp.Models.Event
 
         [ForeignKey("EventId")]
         public Evento? Event { get; set; }
+        
+        public string? VenueImageUrl { get; internal set; }
+    
 
         public ICollection<VenueSection> Sections { get; set; } = new List<VenueSection>();
     }

@@ -22,10 +22,11 @@ namespace BigFourApp.Models.Event
         public bool SafeTix { get; set; } = false;
         public bool IsCancelled { get; set; } = false;
 
+        public string? EventImageUrl { get; internal set; }
+
         // Inicializar colecciones para evitar null warnings
         public ICollection<Venue> Venues { get; set; } = new List<Venue>();
         public ICollection<Classification> Classifications { get; set; } = new List<Classification>();
-        public ICollection<Images> Images { get; set; } = new List<Images>();
         public ICollection<Asiento> Asientos { get; set; } = new List<Asiento>();
 
     }

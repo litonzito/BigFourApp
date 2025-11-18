@@ -3,6 +3,7 @@ using System;
 using BigFourApp.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BigFourApp.Migrations
 {
     [DbContext(typeof(BaseDatos))]
-    partial class BaseDatosModelSnapshot : ModelSnapshot
+    [Migration("20251112233014_Actualizado")]
+    partial class Actualizado
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -85,10 +88,6 @@ namespace BigFourApp.Migrations
                     b.Property<int>("Numero")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("SectionId")
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id_Asiento");
 
                     b.HasIndex("EventId");
@@ -138,9 +137,6 @@ namespace BigFourApp.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsCancelled")
-                        .HasColumnType("INTEGER");
-                        
                     b.Property<string>("EventImageUrl")
                         .HasColumnType("TEXT");
 
@@ -200,41 +196,6 @@ namespace BigFourApp.Migrations
                     b.HasIndex("EventId");
 
                     b.ToTable("Venues");
-                });
-
-            modelBuilder.Entity("BigFourApp.Models.Event.VenueSection", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("BasePrice")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SeatCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SeatsPerRow")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("SectionCode")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("VenueId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VenueId");
-
-                    b.ToTable("VenueSections");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Usuario", b =>
@@ -353,17 +314,6 @@ namespace BigFourApp.Migrations
                     b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("BigFourApp.Models.Event.VenueSection", b =>
-                {
-                    b.HasOne("BigFourApp.Models.Event.Venue", "Venue")
-                        .WithMany("Sections")
-                        .HasForeignKey("VenueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Venue");
-                });
-
             modelBuilder.Entity("BigFourApp.Models.Venta", b =>
                 {
                     b.HasOne("BigFourApp.Models.Usuario", "Usuario")
@@ -392,11 +342,6 @@ namespace BigFourApp.Migrations
                     b.Navigation("Classifications");
 
                     b.Navigation("Venues");
-                });
-
-            modelBuilder.Entity("BigFourApp.Models.Event.Venue", b =>
-                {
-                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Usuario", b =>
