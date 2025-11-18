@@ -20,15 +20,60 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- Left side navigation -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CrearCuenta" asp-action="Create">Create Account</a>
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                        <li class="nav-item ms-auto"></li>
+
+                        @if (!User.Identity!.IsAuthenticated)
+                        {
+                            <!-- NOT LOGGED IN -->
+                            <li class="nav-item ms-auto">
+                                <a class="nav-link text-dark" href="/Identity/Account/Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/Identity/Account/Register">Register</a>
+                            </li>
+                        }
+                        else
+                        {
+                             <!-- LOGGED IN -->
+                            <li class="nav-item ms-auto">
+                                <span class="navbar-text me-3">
+            
+                                </span>
+                            </li>
+
+                            @if (User.IsInRole("EventManager"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="/Manager/EventDashboard">Manage Events</a>
+                                </li>
+                            }
+
+                             <li class="nav-item">
+                                <form asp-area="Identity"
+                                    asp-page="/Account/Logout"
+                                    asp-route-returnUrl="/"
+                                    method="post"
+                                    style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-link nav-link text-dark p-0"
+                                            style="cursor:pointer;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        }
+
                     </ul>
                 </div>
             </div>

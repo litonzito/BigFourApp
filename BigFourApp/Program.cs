@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+
+
 
 builder.Services.AddDbContext<BaseDatos>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 //builder.Services.AddScoped<IEventRepository, EventRepository>();
@@ -20,15 +20,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
 })
 .AddEntityFrameworkStores<BaseDatos>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddDefaultUI();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
 });
 
-
+//i moved it down there, it stopped working on my last test for some reason when it was at the top ?  ? dont touch it anymore 
 builder.Services.AddRazorPages();
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
 
 var app = builder.Build();
 // Crear base de datos automaticamente (solo en desarrollo)
@@ -76,7 +82,10 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();
+
+
 app.UseAuthorization();
+
 app.MapRazorPages();
 
 app.MapStaticAssets();
