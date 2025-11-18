@@ -1,0 +1,15 @@
+@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<section class="d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 50vh;">
+    <h1 class="display-4 fw-bold text-danger"> 403 Acceso Prohibido</h1>
+    <p class="lead mt-3">No tienes permisos para acceder a esta sección.</p>
+
+    <div class="mt-4 d-flex gap-3">
+        <a href="/" class="btn btn-primary px-4">Volver al Inicio</a>
+        <a href="/Identity/Account/Login" class="btn btn-outline-primary px-4">Iniciar Sesión</a>
+    </div>
+</section>

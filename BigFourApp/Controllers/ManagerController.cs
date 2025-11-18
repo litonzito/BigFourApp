@@ -14,9 +14,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BigFourApp.Controllers
 {
+    [Authorize(Roles = "EventManager")]
     public class ManagerController : Controller
     {
         private readonly BaseDatos _context;

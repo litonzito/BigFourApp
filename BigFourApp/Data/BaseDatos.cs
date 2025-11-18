@@ -1,11 +1,12 @@
 ﻿using BigFourApp.Models;
 using BigFourApp.Models.Event;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace BigFourApp.Persistence
 {
-    public class BaseDatos : DbContext
+    public class BaseDatos : IdentityDbContext<ApplicationUser>
     {
         public BaseDatos(DbContextOptions<BaseDatos> options) : base(options) { }
         //Las tablas que se crean en la base de datos
@@ -20,6 +21,8 @@ namespace BigFourApp.Persistence
         public DbSet<VenueSection> VenueSections { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // --- 🔹 Claves primarias ---
             modelBuilder.Entity<Boleto>().HasKey(b => b.Id_Boleto);
             modelBuilder.Entity<Asiento>().HasKey(a => a.Id_Asiento);

@@ -7,7 +7,37 @@
 
 <section class="hero-section d-flex flex-column justify-content-center align-items-center text-center">
     <h1 class="hero-title">BigFourApp</h1>
-    <p class="hero-subtitle">Descubre los mejores eventos disponibles</p>
+
+    @if (!User.Identity!.IsAuthenticated)
+    {
+        <p class="hero-subtitle">Descubre los mejores eventos disponibles</p>
+
+         <div class="mt-3 d-flex gap-3">
+            <a href="/Identity/Account/Login" class="btn btn-light btn-lg px-4">
+                Iniciar Sesión
+            </a>
+            <a href="/Identity/Account/Register" class="btn btn-outline-light btn-lg px-4">
+                Crear Cuenta
+            </a>
+        </div>
+    }
+    else
+    {
+         <p class="hero-subtitle">
+            Bienvenido, <strong>@User.Identity.Name</strong> 
+        </p>
+
+        @if (User.IsInRole("EventManager"))
+        {
+            <a href="/Manager/EventDashboard" class="btn btn-warning btn-lg mt-3 px-4">
+                Administrar Eventos
+            </a>
+        }
+        else
+        {
+            <p class="text-white mt-2" style="opacity: 0.9;">Disfruta explorando los próximos eventos</p>
+        }
+    }
 </section>
 
 
