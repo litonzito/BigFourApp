@@ -84,8 +84,10 @@ namespace BigFourApp.Models.Manager
         [Display(Name = "Precio base (USD)")]
         public decimal BasePrice { get; set; } = 85m;
 
+        [Required]
+        [MaxLength(64)]
         [Display(Name = "Código interno")]
-        public string? SectionCode { get; set; }
+        public string SectionCode { get; set; } = string.Empty;
     }
 
     public class EventDashboardVM
