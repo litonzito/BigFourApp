@@ -34,7 +34,7 @@ namespace BigFourApp.Controllers
         public async Task<IActionResult> EventDashboard()
         {
             var events = await _context.Events
-                .Include(e => e.Images)
+
                 .Include(e => e.Venues)
                     .ThenInclude(v => v.Sections)
                 .Include(e => e.Asientos)
@@ -56,7 +56,8 @@ namespace BigFourApp.Controllers
                     City = venue?.City ?? string.Empty,
                     State = venue?.State ?? string.Empty,
                     IsCancelled = e.IsCancelled,
-                    ImageUrl = e.Images.FirstOrDefault()?.Url ?? string.Empty,
+                    // changed to be a single url stored in Events table .,. 
+                    ImageUrl = e.EventImageUrl ?? string.Empty,
                     SectionCount = sectionCount,
                     SeatCount = seatCount,
                     AvailableSeats = availableSeats
@@ -104,6 +105,7 @@ namespace BigFourApp.Controllers
                 SeatmapUrl = vm.ExistingSeatmapUrl ?? string.Empty,
                 SafeTix = vm.SafeTix,
                 IsCancelled = vm.IsCancelled
+               
             };
 
             var venue = new Venue
@@ -147,7 +149,7 @@ namespace BigFourApp.Controllers
             }
 
             var evento = await _context.Events
-                .Include(e => e.Images)
+             
                 .Include(e => e.Classifications)
                 .Include(e => e.Venues)
                     .ThenInclude(v => v.Sections)
@@ -188,7 +190,7 @@ namespace BigFourApp.Controllers
             }
 
             var evento = await _context.Events
-                .Include(e => e.Images)
+                
                 .Include(e => e.Classifications)
                 .Include(e => e.Venues)
                     .ThenInclude(v => v.Sections)
@@ -370,6 +372,7 @@ namespace BigFourApp.Controllers
 
         private async Task HandleUploadsAsync(Evento evento, CreateEventVM vm, bool isEdit)
         {
+            
             if (vm.SeatmapImage != null)
             {
                 var seatmapUrl = await SaveFileAsync(vm.SeatmapImage, "seatmaps");
@@ -383,29 +386,33 @@ namespace BigFourApp.Controllers
                 }
             }
 
+            // Remove current event image if requested
             if (isEdit && vm.ImagesToRemove?.Any() == true)
             {
-                var toRemove = evento.Images
-                    .Where(img => vm.ImagesToRemove.Contains(img.Url))
-                    .ToList();
-
-                foreach (var img in toRemove)
+              
+                if (!string.IsNullOrEmpty(evento.EventImageUrl) &&
+                    vm.ImagesToRemove.Contains(evento.EventImageUrl))
                 {
-                    TryDeleteAsset(img.Url);
+                    TryDeleteAsset(evento.EventImageUrl);
+                    evento.EventImageUrl = null;
                 }
-
-                _context.Images.RemoveRange(toRemove);
             }
 
+            // Upload a new event image (we only store one URL as of now :3 )
             if (vm.EventImages?.Any() == true)
             {
-                foreach (var file in vm.EventImages)
+                // current upload is the main image for the event
+                var file = vm.EventImages.First();
+                var url = await SaveFileAsync(file, "events");
+                if (!string.IsNullOrEmpty(url))
                 {
-                    var url = await SaveFileAsync(file, "events");
-                    if (!string.IsNullOrEmpty(url))
+                    // If editing, deletes the previous image . . hopefully .. 
+                    if (isEdit && !string.IsNullOrEmpty(evento.EventImageUrl))
                     {
-                        evento.Images.Add(new Images { Url = url });
+                        TryDeleteAsset(evento.EventImageUrl);
                     }
+
+                    evento.EventImageUrl = url;
                 }
             }
         }
@@ -473,7 +480,10 @@ namespace BigFourApp.Controllers
                 SubGenre = classification?.SubGenre,
                 SafeTix = evento.SafeTix,
                 ExistingSeatmapUrl = evento.SeatmapUrl,
-                ExistingImages = evento.Images.Select(i => i.Url).ToList(),
+                // turns eventimageurl into a list since thats how the previous version did it 
+                ExistingImages = string.IsNullOrEmpty(evento.EventImageUrl)
+                    ? new List<string>()
+                    : new List<string> { evento.EventImageUrl },
                 IsCancelled = evento.IsCancelled
             };
 
@@ -501,8 +511,3 @@ namespace BigFourApp.Controllers
         }
     }
 }
-
-
-
-
-
