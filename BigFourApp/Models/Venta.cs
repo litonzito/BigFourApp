@@ -7,7 +7,7 @@ namespace BigFourApp.Models
         [Key]
         public int Id_Venta { get; set; }
 
-        public int Id_Usuario { get; set; }
+        public string Id_Usuario { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
         public decimal Total { get; set; }
         public string MetodoPago { get; set; } = "No especificado";
