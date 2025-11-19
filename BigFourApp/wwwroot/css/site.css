@@ -19,7 +19,7 @@ html {
 
 body {/*Modifique el bg, ff y color*/
     background: linear-gradient(135deg, #f0f4ff, #e8efff);
-    font-family: "Poppins", sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
     color: #333;
 }
