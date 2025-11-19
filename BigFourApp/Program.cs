@@ -11,6 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BaseDatos>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 //builder.Services.AddScoped<IEventRepository, EventRepository>();
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.AddHostedService<NotificationBackgroundService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
