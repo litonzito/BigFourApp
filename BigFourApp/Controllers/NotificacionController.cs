@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-public class NotificacionController : Controller
+public class NotificacionesController : Controller
 {
     private readonly BaseDatos _context;
 
-    public NotificacionController(BaseDatos context )
+    public NotificacionesController(BaseDatos context )
     {
         _context = context;
     }
@@ -20,6 +20,19 @@ public class NotificacionController : Controller
             .Include(n => n.Usuario)
             .OrderByDescending(n => n.fecha)
             .ToListAsync();
-        return View(listNot);
+        return View("NotifsHistory", listNot);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EliminarNotificacion(int id)
+    {
+        var notificacion = await _context.Notificaciones.FindAsync(id);
+        if (notificacion == null)
+        {
+            return NotFound();
+        }
+        _context.Notificaciones.Remove(notificacion);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("Notificaciones");
     }
 }

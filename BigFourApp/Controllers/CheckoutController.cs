@@ -289,7 +289,6 @@ namespace BigFourApp.Controllers
             string subject = $"Recibo de compra — {evento.Name}";
 
             string body = $@"
-        <h2>Recibo de compra — {evento.Name}</h2>
 
         <p>Gracias por tu compra, <b>{vm.nombre} {vm.apellido}</b>.</p>
         <p><b>Método de pago:</b> {vm.metodoPago}</p>

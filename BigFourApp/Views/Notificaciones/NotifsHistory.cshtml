@@ -1,0 +1,106 @@
+﻿@model IEnumerable<BigFourApp.Models.Notificacion>
+
+@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="notifs-wrapper">
+
+    <div class="container">
+
+        <div class="notifs-card">
+
+            @if (Model != null && Model.Any())
+            {
+                <h1 class="notifs-title">
+                    Notificaciones — @Model.First().Usuario?.UserName
+                </h1>
+            @functions {
+                public (string Subject, string Body) ParseMessage(string mensaje)
+                {
+                    if (string.IsNullOrWhiteSpace(mensaje))
+                        return ("(Sin asunto)", "(Sin contenido)");
+
+                    string subject = "";
+                    string body = "";
+
+                    int subjectIndex = mensaje.IndexOf("Subject:");
+                    int bodyIndex = mensaje.IndexOf("Body:");
+
+                    if (subjectIndex >= 0 && bodyIndex > subjectIndex)
+                    {
+                        subject = mensaje.Substring(subjectIndex + 8, bodyIndex - (subjectIndex + 8)).Trim();
+                        body = mensaje.Substring(bodyIndex + 5).Trim();
+                    }
+                    else
+                    {
+                        // fallback si no tiene formato
+                        body = mensaje;
+                    }
+
+                    return (subject, body);
+                }
+            }
+
+                <div class="table-container">
+                <table class="table table-hover notif-table">
+                    <thead class="notif-thead">
+                        <tr>
+                                <th>Mensaje</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                <td>
+                                    @{
+                                        var parsed = ParseMessage(item.Mensaje);
+                                    }
+
+                                    <div class="msg-section">
+                                        <strong>Subject:</strong>
+                                        <div class="msg-block">@parsed.Subject</div>
+
+                                        <strong>Body:</strong>
+                                        <div class="msg-block">@parsed.Body</div>
+                                    </div>
+                                </td>
+                                <td >@item.Tipo</td>
+                                    <td>@item.fecha.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                    <td class="text-end">
+                                        <form asp-controller="Notificaciones"
+                                              asp-action="EliminarNotificacion"
+                                              asp-route-id="@item.Id_Notificacion"
+                                              method="post">
+
+                                            <button type="submit" class="btn-delete">
+                                                Eliminar
+                                            </button>
+
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">
+                    <i class="bi bi-bell-slash"></i>
+                    <p>No tienes notificaciones aún.</p>
+                </div>
+            }
+
+        </div>
+
+    </div>
+</div>
