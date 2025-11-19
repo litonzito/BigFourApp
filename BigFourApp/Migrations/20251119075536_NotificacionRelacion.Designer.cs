@@ -3,6 +3,7 @@ using System;
 using BigFourApp.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BigFourApp.Migrations
 {
     [DbContext(typeof(BaseDatos))]
-    partial class BaseDatosModelSnapshot : ModelSnapshot
+    [Migration("20251119075536_NotificacionRelacion")]
+    partial class NotificacionRelacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -316,8 +319,8 @@ namespace BigFourApp.Migrations
                     b.Property<string>("Id_Usuario")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Mensaje")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("Mensaje")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Tipo")
                         .HasColumnType("TEXT");

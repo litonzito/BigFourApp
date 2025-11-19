@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BigFourApp.Controllers
 {
@@ -228,9 +229,7 @@ namespace BigFourApp.Controllers
             if (evento == null)
                 return NotFound();
 
-            // ------------------------------
             // FILTRAR ASIENTOS
-            // ------------------------------
             var ids = seatIds
                 .Where(s => int.TryParse(s, out _))
                 .Select(int.Parse)
@@ -241,9 +240,7 @@ namespace BigFourApp.Controllers
                 .OrderBy(a => a.Numero)
                 .ToList();
 
-            // ------------------------------
             // RE-CALCULAR PRECIOS
-            // ------------------------------
             int totalSeats = evento.Asientos.Count;
             int totalRows = Math.Max(1, (totalSeats + SeatsPerRow - 1) / SeatsPerRow);
 
@@ -273,9 +270,7 @@ namespace BigFourApp.Controllers
                 htmlSeatList += $"<li>Asiento {seat.Numero}: ${price:0.00}</li>";
             }
 
-            // ------------------------------
             // CONSTRUIR MODELO COMPLETO
-            // ------------------------------
             var vm = new ReceiptViewModel
             {
                 EventId = eventId,
@@ -290,9 +285,7 @@ namespace BigFourApp.Controllers
                 metodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago
             };
 
-            // ------------------------------
-            // HTML FINAL DEL CORREO  (TU MISMO HTML, SIN CAMBIARLO)
-            // ------------------------------
+            // HTML FINAL DEL CORREO 
             string subject = $"Recibo de compra — {evento.Name}";
 
             string body = $@"
@@ -310,10 +303,20 @@ namespace BigFourApp.Controllers
         <p>Lugar: {vm.VenueName}</p>
         <p>Fecha de compra: {DateTime.Now:dd/MM/yyyy HH:mm}</p>
     ";
+            string plainBody = Regex.Replace(body, "<.*?>", string.Empty).Trim();//Poder parsear el body de HTML a texto plano para que se lea mejor en la BD
 
-            // ------------------------------
+            // GUARDAR NOTIFICACIÓN EN BD
+            var notificacion = new Notificacion
+            {
+                Id_Usuario = user.Id,
+                Mensaje = $"Subject:{subject} \n Body:{plainBody}", // puedes cambiar esto por otro código o texto si lo deseas
+                Tipo = "Recibo",
+                fecha = DateTime.Now
+            };
+            _context.Notificaciones.Add(notificacion);
+            await _context.SaveChangesAsync();
+
             // ENVIAR EMAIL
-            // ------------------------------
             await _emailService.SendEmail(user.Email, subject, body);
 
             TempData["Message"] = "Recibo enviado a tu correo.";

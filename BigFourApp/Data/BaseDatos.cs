@@ -19,6 +19,8 @@ namespace BigFourApp.Persistence
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Classification> Classifications { get; set; }
         public DbSet<VenueSection> VenueSections { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -103,6 +105,11 @@ namespace BigFourApp.Persistence
                 .HasForeignKey(s => s.VenueId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Notificacion>()
+                .HasOne(n => n.Usuario)
+                .WithMany(a => a.Notificaciones)
+                .HasForeignKey(n => n.Id_Usuario)
+                .OnDelete(DeleteBehavior.Cascade);
             // --- 🔹 Opcional: restricciones adicionales ---
             modelBuilder.Entity<Evento>().Property(e => e.Name).IsRequired().HasMaxLength(255);
             modelBuilder.Entity<Evento>().Property(e => e.Url).HasMaxLength(500);
