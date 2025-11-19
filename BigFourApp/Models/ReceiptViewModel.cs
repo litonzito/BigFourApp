@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using BigFourApp.Models;
+using BigFourApp.Models.ViewModels;
 
 
 namespace BigFourApp.Models.ViewModels
