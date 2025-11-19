@@ -1,5 +1,5 @@
-﻿using BigFourApp.Models.Event;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using BigFourApp.Models.Event;
 
 namespace BigFourApp.Models
 {
@@ -7,13 +7,11 @@ namespace BigFourApp.Models
     {
         [Key]
         public int Id_Boleto { get; set; }
-        public int? Id_Asiento { get; set; }
-        public int? Id_DetalleVenta { get; set; }
+
         public string Tipo { get; set; } = "Sin tipo asignado";
         public bool Notificar { get; set; } = true;
 
-        public Asiento? Asiento { get; set; } 
-        public DetalleVenta? DetalleVenta { get; set; }
-
+        // Navigation
+        public ICollection<DetalleVenta> DetalleVentas { get; set; }
     }
 }

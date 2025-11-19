@@ -25,4 +25,16 @@ public class TestController : Controller
 
         return Content("Correo enviado — revisa tu bandeja");
     }
+    public async Task<IActionResult> CrearBoleto()
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        await _emailService.SendEmail(
+            user.Email,
+            " Notificación de prueba",
+            "Si recibes este correo, tu sistema StudyTrack puede enviar notificaciones correctamente."
+        );
+
+        return Content("Correo enviado — revisa tu bandeja");
+    }
 }

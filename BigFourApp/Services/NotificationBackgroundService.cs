@@ -1,4 +1,5 @@
 using BigFourApp.Data;
+using BigFourApp.Models;
 using BigFourApp.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,21 +23,39 @@ public class NotificationBackgroundService : BackgroundService
 
             // actividades a notificar en los próximos 30 minutos
             var ahora = DateTime.Now;
-            var proximas = await db.Boletos
-                .Include(a => a.Asiento)
-                .Where(a => a.Asiento.Event.Date <= ahora.AddMinutes(30))
-                .ToListAsync();
+            var boletos = await db.Boletos
+                .Include(b => b.DetalleVentas)
+                    .ThenInclude(dv => dv.Asiento)
+                        .ThenInclude(a => a.Event)
+                .Include(b => b.DetalleVentas)
+                    .ThenInclude(dv => dv.Venta)
+                        .ThenInclude(v => v.Usuario)
+                .Where(b =>
+                    b.Notificar &&
+                    b.DetalleVentas.Any(dv =>
+                        dv.Asiento.Event.Date <= ahora.AddMinutes(30) &&
+                        dv.Asiento.Event.Date > ahora
+                    ))
+                .ToListAsync(stoppingToken);
 
-            foreach (var act in proximas)
+
+
+            foreach (var boleto in boletos)
             {
+                var detalle = boleto.DetalleVentas.FirstOrDefault();
+
                 await _emailService.SendEmail(
-                    act.DetalleVenta.Venta.Usuario.Email,
-                    $"Recordatorio: {act.Asiento.Event.Name}",
-                    $"Tu evento <b>{act.Asiento.Event.Name}</b> esta proximo a inicial a las <b>{act.Asiento.Event.Date}</b>."
+                    detalle.Venta.Usuario.Email,
+                    $"Recordatorio: {detalle.Asiento.Event.Name}",
+                    $@"
+                                <p>Tu evento <b>{detalle.Asiento.Event.Name}</b> está por comenzar.</p>
+                                <p>Fecha y hora: <b>{detalle.Asiento.Event.Date}</b></p>
+                            "
                 );
 
+
                 // Desactiva notificación para no volverla a mandar
-                act.Notificar = false;
+                boleto.Notificar = false;
             }
             Console.WriteLine("Background service running...");
 

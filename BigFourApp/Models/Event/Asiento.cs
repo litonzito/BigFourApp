@@ -12,8 +12,9 @@ namespace BigFourApp.Models.Event
         public string? SectionId { get; set; }
         public EstadoAsiento Estado { get; set; } = EstadoAsiento.Disponible;
 
-        public Boleto? Boleto { get; set; }
-        public Evento? Event { get; set; } 
+        public DetalleVenta? DetalleVenta { get; set; }
+        public Evento? Event { get; set; }
     }
+
 
 }
