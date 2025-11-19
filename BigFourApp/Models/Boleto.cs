@@ -10,7 +10,7 @@ namespace BigFourApp.Models
         public int? Id_Asiento { get; set; }
         public int? Id_DetalleVenta { get; set; }
         public string Tipo { get; set; } = "Sin tipo asignado";
-        public bool Notificar { get; set; }
+        public bool Notificar { get; set; } = true;
 
         public Asiento? Asiento { get; set; } 
         public DetalleVenta? DetalleVenta { get; set; }

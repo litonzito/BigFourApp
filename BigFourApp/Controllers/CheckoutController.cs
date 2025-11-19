@@ -1,6 +1,7 @@
 ﻿using BigFourApp.Models;
 using BigFourApp.Models.ViewModels;
 using BigFourApp.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,12 +13,17 @@ namespace BigFourApp.Controllers
     public class CheckoutController : Controller
     {
         private readonly BaseDatos _context;
+        private readonly IEmailService _emailService;
         private const int SeatsPerRow = 10;
         private const decimal DefaultBasePrice = 85m;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CheckoutController(BaseDatos context)
+
+        public CheckoutController(BaseDatos context, IEmailService emailService, UserManager<ApplicationUser> userManager)
         {
+            _emailService = emailService;
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -92,10 +98,12 @@ namespace BigFourApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult ConfirmPurchase()
+        public IActionResult ConfirmPurchase(ReceiptViewModel? recipt)
         {
-            return View("Receipt");
+            return View("Receipt", recipt);
         }
+
+
 
         [HttpPost]
         public IActionResult ConfirmPurchase(
@@ -171,15 +179,18 @@ namespace BigFourApp.Controllers
                 };
             }).ToList();
 
-            var vm = new SeatSelectionViewModel
+            var vm = new ReceiptViewModel
             {
+                nombre = nombre ?? "",
+                apellido = apellido ?? "",
+                metodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago,
                 EventId = evento.Id_Evento,
                 EventName = evento.Name,
                 VenueName = evento.Venues.FirstOrDefault()?.Name,
                 City = evento.Venues.FirstOrDefault()?.City,
                 State = evento.Venues.FirstOrDefault()?.State,
                 CartItems = items,
-                Subtotal = items.Sum(x => x.Price)
+                Subtotal = items.Sum(i => i.Price)
             };
 
             // Se pasan los datos de Payment al recibo
@@ -187,7 +198,128 @@ namespace BigFourApp.Controllers
             ViewBag.Apellido = apellido;
             ViewBag.MetodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago;
 
+            TempData["Nombre"] = nombre;
+            TempData["Apellido"] = apellido;
+            TempData["MetodoPago"] = metodoPago;
+
+
             return View("Receipt", vm);
         }
+        [HttpPost]
+        public async Task<IActionResult> SendReceiptEmail(
+    string eventId,
+    List<string> seatIds,
+    string? nombre,
+    string? apellido,
+    string? metodoPago)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+                return BadRequest("No se pudo obtener el correo del usuario.");
+
+            if (string.IsNullOrWhiteSpace(eventId) || seatIds == null || seatIds.Count == 0)
+                return BadRequest("Datos inválidos.");
+
+            var evento = _context.Events
+                .Include(e => e.Asientos)
+                .Include(e => e.Venues)
+                .FirstOrDefault(e => e.Id_Evento == eventId);
+
+            if (evento == null)
+                return NotFound();
+
+            // ------------------------------
+            // FILTRAR ASIENTOS
+            // ------------------------------
+            var ids = seatIds
+                .Where(s => int.TryParse(s, out _))
+                .Select(int.Parse)
+                .ToHashSet();
+
+            var selectedSeats = evento.Asientos
+                .Where(a => ids.Contains(a.Id_Asiento))
+                .OrderBy(a => a.Numero)
+                .ToList();
+
+            // ------------------------------
+            // RE-CALCULAR PRECIOS
+            // ------------------------------
+            int totalSeats = evento.Asientos.Count;
+            int totalRows = Math.Max(1, (totalSeats + SeatsPerRow - 1) / SeatsPerRow);
+
+            var rowMap = evento.Asientos
+                .OrderBy(a => a.Numero)
+                .Select((a, idx) => new { a.Id_Asiento, Row = (idx / SeatsPerRow) + 1 })
+                .ToDictionary(x => x.Id_Asiento, x => x.Row);
+
+            decimal subtotal = 0;
+            string htmlSeatList = "";
+
+            var items = new List<CartItemVM>();
+
+            foreach (var seat in selectedSeats)
+            {
+                int row = rowMap[seat.Id_Asiento];
+                decimal price = CalculatePrice(row, totalRows, DefaultBasePrice);
+                subtotal += price;
+
+                items.Add(new CartItemVM
+                {
+                    SeatId = seat.Id_Asiento.ToString(),
+                    Label = $"Asiento {seat.Numero}",
+                    Price = price
+                });
+
+                htmlSeatList += $"<li>Asiento {seat.Numero}: ${price:0.00}</li>";
+            }
+
+            // ------------------------------
+            // CONSTRUIR MODELO COMPLETO
+            // ------------------------------
+            var vm = new ReceiptViewModel
+            {
+                EventId = eventId,
+                EventName = evento.Name,
+                VenueName = evento.Venues.FirstOrDefault()?.Name,
+                City = evento.Venues.FirstOrDefault()?.City,
+                State = evento.Venues.FirstOrDefault()?.State,
+                CartItems = items,
+                Subtotal = subtotal,
+                nombre = nombre ?? "",
+                apellido = apellido ?? "",
+                metodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago
+            };
+
+            // ------------------------------
+            // HTML FINAL DEL CORREO  (TU MISMO HTML, SIN CAMBIARLO)
+            // ------------------------------
+            string subject = $"Recibo de compra — {evento.Name}";
+
+            string body = $@"
+        <h2>Recibo de compra — {evento.Name}</h2>
+
+        <p>Gracias por tu compra, <b>{vm.nombre} {vm.apellido}</b>.</p>
+        <p><b>Método de pago:</b> {vm.metodoPago}</p>
+
+        <h3>Asientos adquiridos</h3>
+        <ul>{htmlSeatList}</ul>
+
+        <p><b>Total pagado:</b> ${vm.Subtotal:0.00}</p>
+
+        <p>Evento: <b>{vm.EventName}</b></p>
+        <p>Lugar: {vm.VenueName}</p>
+        <p>Fecha de compra: {DateTime.Now:dd/MM/yyyy HH:mm}</p>
+    ";
+
+            // ------------------------------
+            // ENVIAR EMAIL
+            // ------------------------------
+            await _emailService.SendEmail(user.Email, subject, body);
+
+            TempData["Message"] = "Recibo enviado a tu correo.";
+
+            return View("Receipt", vm);
+        }
+
     }
 }
