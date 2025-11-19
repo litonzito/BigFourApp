@@ -8,15 +8,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BigFourApp.Controllers
 {
+    [Authorize]
     public class CheckoutController : Controller
     {
         private readonly BaseDatos _context;
         private readonly IEmailService _emailService;
-        private const int SeatsPerRow = 10;
-        private const decimal DefaultBasePrice = 85m;
         private readonly UserManager<ApplicationUser> _userManager;
 
 
@@ -33,69 +35,37 @@ namespace BigFourApp.Controllers
             if (string.IsNullOrWhiteSpace(id) || seatIds == null || seatIds.Count == 0)
                 return RedirectToAction("Index", "Home");
 
-            var evento = _context.Events
-                .Include(e => e.Asientos)
-                .Include(e => e.Venues)
-                .FirstOrDefault(e => e.Id_Evento == id);
-
-            if (evento == null) return NotFound();
-
-            var allSeats = evento.Asientos
-                .Where(a => string.Equals(a.EventId, id, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(a => a.Numero)
-                .ToList();
-
-            var totalRows = Math.Max(1, (allSeats.Count + SeatsPerRow - 1) / SeatsPerRow);
-            var rowBySeatId = new Dictionary<int, int>();
-            for (int i = 0; i < allSeats.Count; i++)
+            //lee el viewmodel mandado de seatController 
+            var json = TempData["CheckoutVM"] as string;
+            if(string.IsNullOrEmpty(json))
             {
-                var seat = allSeats[i];
-                var rowNumber = (i / SeatsPerRow) + 1;
-                rowBySeatId[seat.Id_Asiento] = rowNumber;
+                return RedirectToAction("Index", "Seat", new {id}); 
+            }
+            var vmFromCart = JsonConvert.DeserializeObject<SeatSelectionViewModel>(json);
+
+            //validacion de que coincide el evento
+            if(!string.Equals(vmFromCart?.EventId, id, StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Seat", new {id});
             }
 
-            var selected = allSeats.Where(s =>
+            //se toman los asientos seleccionados del viewmodel (form)
+            var filteredItems = (vmFromCart?.CartItems ?? new List<CartItemVM>())
+                .Where(ci => seatIds.Contains(ci.SeatId))
+                .ToList();
+
+            //validacion por si conflicto de asientos
+            if (!filteredItems.Any())
             {
-                // seatIds vienen como string; Id_Asiento es int
-                return seatIds.Contains(s.Id_Asiento.ToString());
-            }).ToList();
+                return RedirectToAction("Index", "Seat", new {id});
+            }
 
-            var items = selected.Select(s =>
-            {
-                var rowNumber = rowBySeatId[s.Id_Asiento];
-                var price = CalculatePrice(rowNumber, totalRows, DefaultBasePrice);
-                return new CartItemVM
-                {
-                    SeatId = s.Id_Asiento.ToString(),
-                    Label = $"Asiento {s.Numero}",
-                    Price = price
-                };
-            }).ToList();
+            vmFromCart.CartItems = filteredItems;
+            vmFromCart.Subtotal = filteredItems.Sum(i => i.Price);
 
-            var v = evento.Venues.FirstOrDefault();
-
-            var vm = new SeatSelectionViewModel
-            {
-                EventId = evento.Id_Evento,
-                EventName = evento.Name,
-                VenueName = v?.Name,
-                City = v?.City,
-                State = v?.State,
-                CartItems = items,
-                Subtotal = items.Sum(x => x.Price)
-            };
-
-            return View("Payment", vm);
-        }
-
-        private static decimal CalculatePrice(int rowNumber, int totalRows, decimal basePrice)
-        {
-            const decimal rowAdjustment = 7.5m;
-            var effectiveRows = totalRows == 0 ? 1 : totalRows;
-            var multiplier = effectiveRows - rowNumber;
-            var price = basePrice + (multiplier * rowAdjustment);
-            price = Math.Round(price, 2, MidpointRounding.AwayFromZero);
-            return price < 25m ? 25m : price;
+            //se guarda el viewmodel en tempdata para pasarlo a confirmpurchase
+            TempData["CheckoutVM"] = JsonConvert.SerializeObject(vmFromCart);
+            return View("Payment", vmFromCart);
         }
 
         [HttpGet]
@@ -103,7 +73,6 @@ namespace BigFourApp.Controllers
         {
             return View("Receipt", recipt);
         }
-
 
 
         [HttpPost]
@@ -144,6 +113,33 @@ namespace BigFourApp.Controllers
                 .OrderBy(a => a.Numero)
                 .ToList();
 
+            if(!selectedSeats.Any()) return BadRequest("No se encontraron asientos seleccionados.");
+
+            //recupera los precios del carrito con tempdata
+            var json = TempData["CheckoutVM"] as string;
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return BadRequest("No se pudo recuperar la información del carrito.");
+            }
+
+            var checkoutVm = JsonConvert.DeserializeObject<SeatSelectionViewModel>(json);
+
+            //validacion de que la informacion coincida
+            if (!string.Equals(checkoutVm?.EventId, eventId, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("La información del carrito no coincide con el evento.");
+            }
+
+            //se toman los asientos confirmados por el usuario, con sus precios
+            var items = (checkoutVm.CartItems ?? new List<CartItemVM>())
+                .Where(ci => seatIds.Contains(ci.SeatId))
+                .ToList();
+
+            if (!items.Any())
+            {
+                return BadRequest("No se encontraron asientos en el carrito para generar el recibo.");
+            }
+
             // PERSISTENCIA: Marca asientos como ocupados
             foreach (var seat in selectedSeats)
             {
@@ -151,34 +147,8 @@ namespace BigFourApp.Controllers
             }
 
             _context.SaveChanges();
-
-            // Recalcular precios igual que en Payment(GET)
-            var allSeats = evento.Asientos
-                .Where(a => string.Equals(a.EventId, evento.Id_Evento, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(a => a.Numero)
-                .ToList();
-
-            var totalRows = Math.Max(1, (allSeats.Count + SeatsPerRow - 1) / SeatsPerRow);
-
-            var rowBySeatId = new Dictionary<int, int>();
-            for (int i = 0; i < allSeats.Count; i++)
-            {
-                var seat = allSeats[i];
-                var rowNumber = (i / SeatsPerRow) + 1;
-                rowBySeatId[seat.Id_Asiento] = rowNumber;
-            }
-
-            var items = selectedSeats.Select(s =>
-            {
-                var rowNumber = rowBySeatId[s.Id_Asiento];
-                var price = CalculatePrice(rowNumber, totalRows, DefaultBasePrice);
-                return new CartItemVM
-                {
-                    SeatId = s.Id_Asiento.ToString(),
-                    Label = $"Asiento {s.Numero}",
-                    Price = price
-                };
-            }).ToList();
+            // construccion del receipt viewmodel
+            var venue = evento.Venues.FirstOrDefault();
 
             var vm = new ReceiptViewModel
             {
@@ -187,9 +157,9 @@ namespace BigFourApp.Controllers
                 metodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago,
                 EventId = evento.Id_Evento,
                 EventName = evento.Name,
-                VenueName = evento.Venues.FirstOrDefault()?.Name,
-                City = evento.Venues.FirstOrDefault()?.City,
-                State = evento.Venues.FirstOrDefault()?.State,
+                VenueName = venue?.Name,
+                City = venue?.City,
+                State = venue?.State,
                 CartItems = items,
                 Subtotal = items.Sum(i => i.Price)
             };
@@ -203,9 +173,11 @@ namespace BigFourApp.Controllers
             TempData["Apellido"] = apellido;
             TempData["MetodoPago"] = metodoPago;
 
-
+            TempData["ReceiptVM"] = JsonConvert.SerializeObject(vm);
             return View("Receipt", vm);
         }
+
+
         [HttpPost]
         public async Task<IActionResult> SendReceiptEmail(
     string eventId,
@@ -240,35 +212,38 @@ namespace BigFourApp.Controllers
                 .OrderBy(a => a.Numero)
                 .ToList();
 
-            // RE-CALCULAR PRECIOS
-            int totalSeats = evento.Asientos.Count;
-            int totalRows = Math.Max(1, (totalSeats + SeatsPerRow - 1) / SeatsPerRow);
-
-            var rowMap = evento.Asientos
-                .OrderBy(a => a.Numero)
-                .Select((a, idx) => new { a.Id_Asiento, Row = (idx / SeatsPerRow) + 1 })
-                .ToDictionary(x => x.Id_Asiento, x => x.Row);
-
-            decimal subtotal = 0;
-            string htmlSeatList = "";
-
-            var items = new List<CartItemVM>();
-
-            foreach (var seat in selectedSeats)
+            // OBTENCION DE PRECIOS
+            //recuperam el receipt viewmodel de tempdata para precios
+            var json = TempData["ReceiptVM"] as string;
+            if (string.IsNullOrWhiteSpace(json))
             {
-                int row = rowMap[seat.Id_Asiento];
-                decimal price = CalculatePrice(row, totalRows, DefaultBasePrice);
-                subtotal += price;
-
-                items.Add(new CartItemVM
-                {
-                    SeatId = seat.Id_Asiento.ToString(),
-                    Label = $"Asiento {seat.Numero}",
-                    Price = price
-                });
-
-                htmlSeatList += $"<li>Asiento {seat.Numero}: ${price:0.00}</li>";
+                return BadRequest("No se pudo recuperar la información del recibo para enviar el correo.");
             }
+
+            var vmFromReceipt = JsonConvert.DeserializeObject<ReceiptViewModel>(json);
+
+            // Validar evento
+            if (!string.Equals(vmFromReceipt?.EventId, eventId, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("La información del recibo no coincide con el evento.");
+            }
+
+            // Filtrar solo los asientos del POST
+            var items = (vmFromReceipt.CartItems ?? new List<CartItemVM>())
+                .Where(ci => seatIds.Contains(ci.SeatId))
+                .ToList();
+
+            if (!items.Any())
+            {
+                return BadRequest("No se encontraron asientos para el recibo.");
+            }
+
+            decimal subtotal = items.Sum(i => i.Price);
+
+            // Construir HTML sin recalcular
+            string htmlSeatList = string.Join("",
+                items.Select(i => $"<li>{i.Label}: {i.Price:C}</li>")
+            );
 
             // CONSTRUIR MODELO COMPLETO
             var vm = new ReceiptViewModel
@@ -280,9 +255,11 @@ namespace BigFourApp.Controllers
                 State = evento.Venues.FirstOrDefault()?.State,
                 CartItems = items,
                 Subtotal = subtotal,
-                nombre = nombre ?? "",
-                apellido = apellido ?? "",
-                metodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago
+                nombre = nombre ?? vmFromReceipt.nombre ?? "",
+                apellido = apellido ?? vmFromReceipt.apellido ?? "",
+                metodoPago = string.IsNullOrWhiteSpace(metodoPago)
+                    ? (string.IsNullOrWhiteSpace(vmFromReceipt.metodoPago) ? "No especificado" : vmFromReceipt.metodoPago)
+                    : metodoPago
             };
 
             // HTML FINAL DEL CORREO 

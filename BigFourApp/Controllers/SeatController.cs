@@ -7,7 +7,7 @@ using BigFourApp.Models.ViewModels;
 using BigFourApp.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json;
 namespace BigFourApp.Controllers
 {
     public class SeatController : Controller
@@ -373,6 +373,8 @@ namespace BigFourApp.Controllers
                 Subtotal = cartItems.Sum(x => x.Price)
             };
 
+            // se guarda el vm en tempdata para poder mandarlo correctamente al controlador de checkout
+            TempData["CheckoutVM"] = JsonConvert.SerializeObject(vm);
             return View("~/Views/Checkout/Cart.cshtml", vm);
         }
 
