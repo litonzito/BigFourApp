@@ -11,7 +11,7 @@ namespace BigFourApp.Persistence
 
         public DbSet<Boleto> Boletos { get; set; }
         public DbSet<Asiento> Asientos { get; set; }
-        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<DetalleVenta> DetallesVenta { get; set; }
         public DbSet<Evento> Events { get; set; }
@@ -27,7 +27,7 @@ namespace BigFourApp.Persistence
             // ------- CLAVES PRIMARIAS -------
             modelBuilder.Entity<Boleto>().HasKey(b => b.Id_Boleto);
             modelBuilder.Entity<Asiento>().HasKey(a => a.Id_Asiento);
-            modelBuilder.Entity<Usuario>().HasKey(u => u.Id_Usuario);
+            modelBuilder.Entity<ApplicationUser>().HasKey(u => u.Id);
             modelBuilder.Entity<Venta>().HasKey(v => v.Id_Venta);
             modelBuilder.Entity<DetalleVenta>().HasKey(dv => dv.Id_DetalleVenta);
             modelBuilder.Entity<Evento>().HasKey(e => e.Id_Evento);

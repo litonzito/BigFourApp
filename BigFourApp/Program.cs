@@ -2,6 +2,7 @@
 using BigFourApp.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BigFourApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

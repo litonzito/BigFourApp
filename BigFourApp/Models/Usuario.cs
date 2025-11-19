@@ -1,9 +1,14 @@
 using BigFourApp.Models;
 using Microsoft.AspNetCore.Identity;
-
-public class ApplicationUser : IdentityUser
+namespace BigFourApp.Models
 {
-    public bool IsEventManager { get; set; } = false;
+    public class ApplicationUser : IdentityUser
+    {
 
-    public ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+        public bool IsEventManager { get; set; } = false;
+
+        // navegacion
+        public List<Venta> Ventas { get; set; }
+        public ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+    }
 }

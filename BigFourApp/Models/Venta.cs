@@ -13,7 +13,7 @@ namespace BigFourApp.Models
         public string MetodoPago { get; set; } = "No especificado";
 
         // Navigation
-        public Usuario Usuario { get; set; }
+        public ApplicationUser Usuario { get; set; }
         public ICollection<DetalleVenta> DetallesVenta { get; set; }
     }
 }
