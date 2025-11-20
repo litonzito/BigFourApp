@@ -3,11 +3,14 @@ using BigFourApp.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BigFourApp.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-
+//stripe
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddDbContext<BaseDatos>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 //builder.Services.AddScoped<IEventRepository, EventRepository>();
