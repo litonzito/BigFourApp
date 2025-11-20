@@ -140,13 +140,66 @@ namespace BigFourApp.Controllers
                 return BadRequest("No se encontraron asientos en el carrito para generar el recibo.");
             }
 
-            // PERSISTENCIA: Marca asientos como ocupados
+            // ==========================================
+            // PERSISTENCIA
+            // =========================================
+            // se actualiza el estado de los asientos a ocupado
             foreach (var seat in selectedSeats)
             {
                 seat.Estado = EstadoAsiento.Ocupado;
             }
 
+            var userTask = _userManager.GetUserAsync(User);
+            userTask.Wait(); // para evitar deadlocks en contextos sincrónicos
+            var user = userTask.Result;
+
+            if (user== null)
+            {
+                return BadRequest("No se pudo obtener el usuario.");
+            }
+
+            var venta = new Venta
+            {
+                Id_Usuario = user.Id,
+                Fecha = DateTime.Now,
+                MetodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago,
+                Total = items.Sum(i => i.Price)
+            };
+
+            _context.Ventas.Add(venta);
             _context.SaveChanges();
+
+            //creacion de boletos unicos y su detalle venta para conectar con la venta correspondiente
+            var detalles = new List<DetalleVenta>();
+
+            foreach (var item in items)
+            {
+                var asiento = selectedSeats.FirstOrDefault(a => a.Id_Asiento.ToString() == item.SeatId);
+                if (asiento == null) continue;
+
+                var boleto = new Boleto
+                {
+                    Tipo = "General",
+                    Notificar = false,
+                    CodigoUnico = Guid.NewGuid().ToString("N")
+                };
+
+                _context.Boletos.Add(boleto);
+
+                var detalleVenta = new DetalleVenta
+                {
+                    Id_Venta = venta.Id_Venta,
+                    Boleto = boleto,
+                    Id_Asiento = asiento.Id_Asiento,
+                    Cantidad = 1,
+                    PrecioUnitario = item.Price
+                };
+                _context.DetallesVenta.Add(detalleVenta);
+            }
+
+            _context.SaveChanges();
+
+
             // construccion del receipt viewmodel
             var venue = evento.Venues.FirstOrDefault();
 

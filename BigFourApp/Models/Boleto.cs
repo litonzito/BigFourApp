@@ -8,6 +8,8 @@ namespace BigFourApp.Models
         [Key]
         public int Id_Boleto { get; set; }
 
+        [Required]
+        public string CodigoUnico { get; set; } = Guid.NewGuid().ToString("N");
         public string Tipo { get; set; } = "Sin tipo asignado";
         public bool Notificar { get; set; } = true;
 
