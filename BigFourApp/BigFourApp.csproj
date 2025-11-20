@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <UserSecretsId>aspnet-BigFourApp-e31cbce63ebf4dcd84380f0604ae69f1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
