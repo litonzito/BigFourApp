@@ -71,40 +71,40 @@ namespace BigFourApp.Persistence
                 .HasForeignKey<DetalleVenta>(dv => dv.Id_Asiento)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Evento -> Venue
+            // Evento (1) -> Venue(N)
             modelBuilder.Entity<Venue>()
                 .HasOne(v => v.Event)
                 .WithMany(e => e.Venues)
                 .HasForeignKey(v => v.EventId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Evento -> Classification
+            // Evento (1) -> Classification(N)
             modelBuilder.Entity<Classification>()
                 .HasOne(c => c.Event)
                 .WithMany(e => e.Classifications)
                 .HasForeignKey(c => c.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Evento -> Asientos
+            // Evento (1) -> Asientos(N)
             modelBuilder.Entity<Asiento>()
                 .HasOne(a => a.Event)
                 .WithMany(e => e.Asientos)
                 .HasForeignKey(a => a.EventId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Enum -> string
+            // Enum  -> string
             modelBuilder.Entity<Asiento>()
                 .Property(a => a.Estado)
                 .HasConversion<string>();
 
-            // Venue sections
+            // Venue (1) -> VenueSection(N)
             modelBuilder.Entity<VenueSection>()
                 .HasOne(s => s.Venue)
                 .WithMany(v => v.Sections)
                 .HasForeignKey(s => s.VenueId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Notificaciones
+            // Usuario (1) -> Notificacion (N)
             modelBuilder.Entity<Notificacion>()
                 .HasOne(n => n.Usuario)
                 .WithMany(u => u.Notificaciones)
