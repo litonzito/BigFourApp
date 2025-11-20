@@ -1,10 +1,9 @@
-﻿@model BigFourApp.Models.ViewModels.SeatSelectionViewModel
+﻿@model BigFourApp.Models.ViewModels.ReceiptViewModel
 
 @{
+
     ViewData["Title"] = "Compra confirmada";
-    var nombre = ViewBag.Nombre as string;
-    var apellido = ViewBag.Apellido as string;
-    var metodoPago = ViewBag.MetodoPago as string;
+
 }
 
 <div class="container my-5" id="receipt-content">
@@ -22,13 +21,13 @@
             <hr class="my-4" />
 
             <h5 class="fw-semibold mb-3">Detalles del comprador</h5>
-            @if (!string.IsNullOrWhiteSpace(nombre) || !string.IsNullOrWhiteSpace(apellido))
+            @if (!string.IsNullOrWhiteSpace(Model.nombre) || !string.IsNullOrWhiteSpace(Model.apellido))
             {
-                <p><strong>Cliente:</strong> @($"{nombre} {apellido}".Trim())</p>
+                <p><strong>Cliente:</strong> @($"{Model.nombre} {Model.apellido}".Trim())</p>
             }
-            @if (!string.IsNullOrWhiteSpace(metodoPago))
+            @if (!string.IsNullOrWhiteSpace(Model.metodoPago))
             {
-                <p><strong>Método de pago:</strong> @metodoPago</p>
+                <p><strong>Método de pago:</strong> @Model.metodoPago</p>
             }
 
             <hr class="my-4" />
@@ -49,10 +48,27 @@
                 <span>@Model.Subtotal.ToString("C")</span>
             </div>
 
-            <div class="text-center">
+            <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
                 <button type="button" class="btn btn-outline-primary me-2" id="downloadReceiptBtn">
                     Descargar recibo (PDF)
                 </button>
+                    <form asp-controller="Checkout" asp-action="SendReceiptEmail" method="post">
+                        <input type="hidden" name="eventId" value="@Model.EventId" />
+
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <input type="hidden" name="seatIds" value="@item.SeatId" />
+                        }
+
+                        <input type="hidden" name="nombre" value="@Model.nombre" />
+                        <input type="hidden" name="apellido" value="@Model.apellido" />
+                        <input type="hidden" name="metodoPago" value="@Model.metodoPago" />
+
+                        <button type="submit" class="btn btn-outline-success">
+                            Enviar recibo por correo
+                        </button>
+                    </form>
+
                 <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Volver al inicio</a>
             </div>
 

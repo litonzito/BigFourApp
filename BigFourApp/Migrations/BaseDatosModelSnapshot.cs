@@ -17,26 +17,87 @@ namespace BigFourApp.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
+            modelBuilder.Entity("BigFourApp.Models.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsEventManager")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("BigFourApp.Models.Boleto", b =>
                 {
                     b.Property<int>("Id_Boleto")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("Id_Asiento")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("Id_DetalleVenta")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Tipo")
+                    b.Property<string>("CodigoUnico")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id_Boleto");
+                    b.Property<bool>("Notificar")
+                        .HasColumnType("INTEGER");
 
-                    b.HasIndex("Id_Asiento")
-                        .IsUnique();
+                    b.HasKey("Id_Boleto");
 
                     b.ToTable("Boletos");
                 });
@@ -50,6 +111,9 @@ namespace BigFourApp.Migrations
                     b.Property<int>("Cantidad")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Id_Asiento")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Id_Boleto")
                         .HasColumnType("INTEGER");
 
@@ -61,8 +125,10 @@ namespace BigFourApp.Migrations
 
                     b.HasKey("Id_DetalleVenta");
 
-                    b.HasIndex("Id_Boleto")
+                    b.HasIndex("Id_Asiento")
                         .IsUnique();
+
+                    b.HasIndex("Id_Boleto");
 
                     b.HasIndex("Id_Venta");
 
@@ -84,6 +150,9 @@ namespace BigFourApp.Migrations
 
                     b.Property<int>("Numero")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("SectionId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id_Asiento");
 
@@ -134,6 +203,15 @@ namespace BigFourApp.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("EventImageUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ManagerId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -154,30 +232,9 @@ namespace BigFourApp.Migrations
 
                     b.HasKey("Id_Evento");
 
+                    b.HasIndex("ManagerId");
+
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("BigFourApp.Models.Event.Images", b =>
-                {
-                    b.Property<int>("Id_Image")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("EventId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id_Image");
-
-                    b.HasIndex("EventId");
-
-                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Event.Venue", b =>
@@ -205,6 +262,9 @@ namespace BigFourApp.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("VenueImageUrl")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id_Venue");
 
                     b.HasIndex("EventId");
@@ -212,34 +272,64 @@ namespace BigFourApp.Migrations
                     b.ToTable("Venues");
                 });
 
-            modelBuilder.Entity("BigFourApp.Models.Usuario", b =>
+            modelBuilder.Entity("BigFourApp.Models.Event.VenueSection", b =>
                 {
-                    b.Property<int>("Id_Usuario")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Apellido")
-                        .IsRequired()
+                    b.Property<decimal>("BasePrice")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("DisplayName")
                         .IsRequired()
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Telefono")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ventaId")
+                    b.Property<int>("SeatCount")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id_Usuario");
+                    b.Property<int>("SeatsPerRow")
+                        .HasColumnType("INTEGER");
 
-                    b.ToTable("Usuarios");
+                    b.Property<string>("SectionCode")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("VenueId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId");
+
+                    b.ToTable("VenueSections");
+                });
+
+            modelBuilder.Entity("BigFourApp.Models.Notificacion", b =>
+                {
+                    b.Property<int>("Id_Notificacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Id_Usuario")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Mensaje")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tipo")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("fecha")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id_Notificacion");
+
+                    b.HasIndex("Id_Usuario");
+
+                    b.ToTable("Notificaciones");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Venta", b =>
@@ -251,8 +341,9 @@ namespace BigFourApp.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Id_Usuario")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id_Usuario")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("MetodoPago")
                         .IsRequired()
@@ -268,22 +359,146 @@ namespace BigFourApp.Migrations
                     b.ToTable("Ventas");
                 });
 
-            modelBuilder.Entity("BigFourApp.Models.Boleto", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
-                    b.HasOne("BigFourApp.Models.Event.Asiento", "Asiento")
-                        .WithOne("Boleto")
-                        .HasForeignKey("BigFourApp.Models.Boleto", "Id_Asiento")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
-                    b.Navigation("Asiento");
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("BigFourApp.Models.DetalleVenta", b =>
                 {
-                    b.HasOne("BigFourApp.Models.Boleto", "Boleto")
+                    b.HasOne("BigFourApp.Models.Event.Asiento", "Asiento")
                         .WithOne("DetalleVenta")
-                        .HasForeignKey("BigFourApp.Models.DetalleVenta", "Id_Boleto")
+                        .HasForeignKey("BigFourApp.Models.DetalleVenta", "Id_Asiento")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BigFourApp.Models.Boleto", "Boleto")
+                        .WithMany("DetalleVentas")
+                        .HasForeignKey("Id_Boleto")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("BigFourApp.Models.Venta", "Venta")
@@ -291,6 +506,8 @@ namespace BigFourApp.Migrations
                         .HasForeignKey("Id_Venta")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Asiento");
 
                     b.Navigation("Boleto");
 
@@ -318,15 +535,14 @@ namespace BigFourApp.Migrations
                     b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("BigFourApp.Models.Event.Images", b =>
+            modelBuilder.Entity("BigFourApp.Models.Event.Evento", b =>
                 {
-                    b.HasOne("BigFourApp.Models.Event.Evento", "Event")
-                        .WithMany("Images")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("BigFourApp.Models.ApplicationUser", "Manager")
+                        .WithMany("ManagedEvents")
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Event");
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Event.Venue", b =>
@@ -339,9 +555,30 @@ namespace BigFourApp.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("BigFourApp.Models.Event.VenueSection", b =>
+                {
+                    b.HasOne("BigFourApp.Models.Event.Venue", "Venue")
+                        .WithMany("Sections")
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Venue");
+                });
+
+            modelBuilder.Entity("BigFourApp.Models.Notificacion", b =>
+                {
+                    b.HasOne("BigFourApp.Models.ApplicationUser", "Usuario")
+                        .WithMany("Notificaciones")
+                        .HasForeignKey("Id_Usuario")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("BigFourApp.Models.Venta", b =>
                 {
-                    b.HasOne("BigFourApp.Models.Usuario", "Usuario")
+                    b.HasOne("BigFourApp.Models.ApplicationUser", "Usuario")
                         .WithMany("Ventas")
                         .HasForeignKey("Id_Usuario")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -350,14 +587,74 @@ namespace BigFourApp.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("BigFourApp.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("BigFourApp.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BigFourApp.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("BigFourApp.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BigFourApp.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("ManagedEvents");
+
+                    b.Navigation("Notificaciones");
+
+                    b.Navigation("Ventas");
+                });
+
             modelBuilder.Entity("BigFourApp.Models.Boleto", b =>
                 {
-                    b.Navigation("DetalleVenta");
+                    b.Navigation("DetalleVentas");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Event.Asiento", b =>
                 {
-                    b.Navigation("Boleto");
+                    b.Navigation("DetalleVenta");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Event.Evento", b =>
@@ -366,14 +663,12 @@ namespace BigFourApp.Migrations
 
                     b.Navigation("Classifications");
 
-                    b.Navigation("Images");
-
                     b.Navigation("Venues");
                 });
 
-            modelBuilder.Entity("BigFourApp.Models.Usuario", b =>
+            modelBuilder.Entity("BigFourApp.Models.Event.Venue", b =>
                 {
-                    b.Navigation("Ventas");
+                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("BigFourApp.Models.Venta", b =>

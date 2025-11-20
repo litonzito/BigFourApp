@@ -10,11 +10,13 @@
           "localTime": "19:30:00"
         }
       },
+      "EventImageURL": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_ARTIST_PAGE_3_2.jpg",
       "venues": [
         {
           "name": "Mortgage Matchup Center",
           "city": "Phoenix",
-          "state": "AZ"
+          "state": "AZ",
+          "VenueImageURL": "https://s1.ticketm.net/dbimages/25649v.jpg"
         }
       ],
       "classifications": [
@@ -24,17 +26,8 @@
           "subGenre": { "name": "Alternative Rock" }
         }
       ],
-      "ticketing": {
-        "safeTix": { "enabled": true }
-      },
-      "images": [
-        {
-          "url": "https://s1.ticketm.net/dbimages/25649v.jpg"
-        }
-      ],
-      "seatmap": {
-        "staticUrl": "https://mapsapi.tmol.io/maps/geometry/3/event/1900632CE40F2DE0/staticImage?type=png&systemId=HOST"
-      }
+      "ticketing": { "safeTix": { "enabled": true } },
+      "seatmap": { "staticUrl": "https://mapsapi.tmol.io/maps/geometry/3/event/1900632CE40F2DE0/staticImage?type=png&systemId=HOST" }
     }
   ]
 }

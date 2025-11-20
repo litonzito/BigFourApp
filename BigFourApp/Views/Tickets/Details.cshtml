@@ -1,0 +1,95 @@
+﻿@model BigFourApp.Models.DetalleVenta
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    ViewData["Title"] = "Boleto";
+    var eventName = Model.Asiento?.Event?.Name ?? "Boleto";
+    var eventDate = Model.Asiento?.Event?.Date ?? DateTime.MinValue;
+    var hasEventDate = eventDate > DateTime.MinValue;
+    var venue = Model.Asiento?.Event?.Venues?.FirstOrDefault();
+    var venueName = venue?.Name;
+    var venueLocation = string.Join(", ", new[] { venue?.City, venue?.State }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    var seatParts = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Model.Asiento?.SectionId))
+    {
+        seatParts.Add($"Zona {Model.Asiento.SectionId}");
+    }
+    if (Model.Asiento?.Numero > 0)
+    {
+        seatParts.Add($"Asiento {Model.Asiento.Numero}");
+    }
+    var seatText = seatParts.Any() ? string.Join(" · ", seatParts) : "Asiento sin asignar";
+    var purchaseDate = Model.Venta?.Fecha;
+    var buyerName = !string.IsNullOrWhiteSpace(Model.Venta?.Usuario?.UserName)
+        ? Model.Venta.Usuario.UserName
+        : (User?.Identity?.Name ?? "Comprador");
+    var code = Model.Boleto?.CodigoUnico ?? "Codigo no disponible";
+    var price = Model.PrecioUnitario;
+}
+
+<link rel="stylesheet" href="~/css/tickets.css" asp-append-version="true" />
+
+<div class="ticket-page">
+    <div class="container py-5">
+        <div class="ticket-shell shadow-panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a asp-controller="Tickets" asp-action="Index" class="btn btn-outline-primary btn-sm">← Volver a mis boletos</a>
+            </div>
+            <div class="ticket-detail">
+                <div class="row g-4 align-items-stretch">
+                    <div class="col-12 col-lg-7">
+                        <div class="ticket-panel shadow-lg h-100">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="ticket-badge text-uppercase">Entrada</div>
+                                <div class="ticket-price-lg text-light">@price.ToString("C")</div>
+                            </div>
+                            <h1 class="ticket-title text-light">@eventName</h1>
+
+                            @if (hasEventDate)
+                            {
+                                <div class="ticket-chip ticket-chip-main mt-3 mb-2 text-light">@eventDate.ToString("dd MMM yyyy")</div>
+                            }
+
+                            <div class="ticket-meta-grid mt-4">
+                                <div class="ticket-meta-card">
+                                    <p class="label">Venue</p>
+                                    <p class="value">@(!string.IsNullOrWhiteSpace(venueName) ? venueName : "Por definir")</p>
+                                    @if (!string.IsNullOrWhiteSpace(venueLocation))
+                                    {
+                                        <p class="sub">@venueLocation</p>
+                                    }
+                                </div>
+                                <div class="ticket-meta-card">
+                                    <p class="label">Asiento</p>
+                                    <p class="value">@seatText</p>
+                                </div>
+                                <div class="ticket-meta-card">
+                                    <p class="label">Comprador</p>
+                                    <p class="value buyer-compact">@buyerName</p>
+                                </div>
+                                <div class="ticket-meta-card">
+                                    <p class="label">Fecha de compra</p>
+                                    <p class="value">@purchaseDate?.ToString("dd/MM/yyyy")</p>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="qr-card shadow-lg h-100 d-flex flex-column align-items-center justify-content-center text-center">
+                            <div class="qr-badge mb-3">Codigo unico</div>
+                            <canvas id="qrCanvas" class="qr-canvas mb-3" width="220" height="220" data-code="@code"></canvas>
+                            <div class="code-text">@code</div>
+                            <p class="text-muted small mt-2 mb-0">Muestra este codigo para validar tu acceso.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="~/js/ticket-details.js" asp-append-version="true"></script>

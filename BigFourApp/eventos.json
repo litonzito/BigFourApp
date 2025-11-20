@@ -8,22 +8,131 @@
         "test": false,
         "url": "https://www.ticketmaster.com/duran-duran-phoenix-arizona-01-05-2026/event/1900632CE40F2DE0",
         "locale": "en-us",
+        "images": [
+          {
+            "ratio": "3_2",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_ARTIST_PAGE_3_2.jpg",
+            "width": 305,
+            "height": 203,
+            "fallback": false
+          },
+          {
+            "ratio": "3_2",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_TABLET_LANDSCAPE_3_2.jpg",
+            "width": 1024,
+            "height": 683,
+            "fallback": false
+          },
+          {
+            "ratio": "3_2",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RETINA_PORTRAIT_3_2.jpg",
+            "width": 640,
+            "height": 427,
+            "fallback": false
+          },
+          {
+            "ratio": "4_3",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_CUSTOM.jpg",
+            "width": 305,
+            "height": 225,
+            "fallback": false
+          },
+          {
+            "ratio": "16_9",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_EVENT_DETAIL_PAGE_16_9.jpg",
+            "width": 205,
+            "height": 115,
+            "fallback": false
+          },
+          {
+            "ratio": "16_9",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_TABLET_LANDSCAPE_LARGE_16_9.jpg",
+            "width": 2048,
+            "height": 1152,
+            "fallback": false
+          },
+          {
+            "ratio": "16_9",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RETINA_PORTRAIT_16_9.jpg",
+            "width": 640,
+            "height": 360,
+            "fallback": false
+          },
+          {
+            "ratio": "16_9",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RECOMENDATION_16_9.jpg",
+            "width": 100,
+            "height": 56,
+            "fallback": false
+          },
+          {
+            "ratio": "16_9",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RETINA_LANDSCAPE_16_9.jpg",
+            "width": 1136,
+            "height": 639,
+            "fallback": false
+          },
+          {
+            "ratio": "16_9",
+            "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_TABLET_LANDSCAPE_16_9.jpg",
+            "width": 1024,
+            "height": 576,
+            "fallback": false
+          }
+        ],
         "sales": {
           "public": {
             "startDateTime": "2025-09-19T17:00:00Z",
             "startTBD": false,
             "startTBA": false,
             "endDateTime": "2026-01-06T04:30:00Z"
-          }
+          },
+          "presales": [
+            {
+              "startDateTime": "2025-09-17T17:00:00Z",
+              "endDateTime": "2025-09-19T05:00:00Z",
+              "name": "Artist Presale"
+            },
+            {
+              "startDateTime": "2025-09-18T17:00:00Z",
+              "endDateTime": "2025-09-19T05:00:00Z",
+              "name": "LIVE NATION PRESALE"
+            },
+            {
+              "startDateTime": "2025-09-18T17:00:00Z",
+              "endDateTime": "2025-09-19T05:00:00Z",
+              "name": "PHX Arena Presale"
+            },
+            {
+              "startDateTime": "2025-09-18T17:00:00Z",
+              "endDateTime": "2025-09-19T05:00:00Z",
+              "name": "Ticketmaster Presale"
+            },
+            {
+              "startDateTime": "2025-09-17T17:00:00Z",
+              "endDateTime": "2025-09-19T05:00:00Z",
+              "name": "VIP Package Presale"
+            },
+            {
+              "startDateTime": "2025-09-19T17:00:00Z",
+              "endDateTime": "2025-11-02T05:00:00Z",
+              "name": "VIP Package Onsale"
+            }
+          ]
         },
         "dates": {
           "start": {
             "localDate": "2026-01-05",
             "localTime": "19:30:00",
-            "dateTime": "2026-01-06T02:30:00Z"
+            "dateTime": "2026-01-06T02:30:00Z",
+            "dateTBD": false,
+            "dateTBA": false,
+            "timeTBA": false,
+            "noSpecificTime": false
           },
           "timezone": "America/Phoenix",
-          "status": { "code": "onsale" }
+          "status": { "code": "onsale" },
+          "spanMultipleDays": false
         },
         "classifications": [
           {
@@ -47,9 +156,15 @@
             "subType": {
               "id": "KZFzBErXgnZfZ7v7lJ",
               "name": "Undefined"
-            }
+            },
+            "family": false
           }
         ],
+        "promoter": {
+          "id": "653",
+          "name": "LIVE NATION MUSIC",
+          "description": "LIVE NATION MUSIC / NTL / USA"
+        },
         "promoters": [
           {
             "id": "653",
@@ -91,6 +206,38 @@
                 "family": false
               }
             ]
+          },
+          {
+            "name": "PARKWHIZ PHX ARENA (FORMERLY FOOTPRINT CENTER)",
+            "id": "1Av0ZbwGkXQ6sKx",
+            "url": "https://www.ticketmaster.com/parkwhiz-phx-arena-formerly-footprint-center-phoenix-arizona-01-05-2026/event/1900632F9A1F14E2",
+            "type": "Upsell",
+            "classifications": [
+              {
+                "primary": true,
+                "segment": {
+                  "id": "KZFzniwnSyZfZ7v7n1",
+                  "name": "Miscellaneous"
+                },
+                "genre": {
+                  "id": "KnvZfZ7v7ll",
+                  "name": "Undefined"
+                },
+                "subGenre": {
+                  "id": "KZazBEonSMnZfZ7vAv1",
+                  "name": "Undefined"
+                },
+                "type": {
+                  "id": "KZAyXgnZfZ7vAva",
+                  "name": "Parking"
+                },
+                "subType": {
+                  "id": "KZFzBErXgnZfZ7vAFe",
+                  "name": "Regular"
+                },
+                "family": false
+              }
+            ]
           }
         ],
         "seatmap": { "staticUrl": "https://mapsapi.tmol.io/maps/geometry/3/event/1900632CE40F2DE0/staticImage?type=png&systemId=HOST" },
@@ -104,6 +251,11 @@
         "ticketing": {
           "safeTix": { "enabled": true },
           "allInclusivePricing": { "enabled": true }
+        },
+        "_links": {
+          "self": { "href": "/discovery/v2/events/1Av0ZbwGkS0dwMO?locale=en-us" },
+          "attractions": [ { "href": "/discovery/v2/attractions/K8vZ9171FP7?locale=en-us" } ],
+          "venues": [ { "href": "/discovery/v2/venues/KovZpZAE617A?locale=en-us" } ]
         },
         "_embedded": {
           "venues": [
@@ -163,16 +315,157 @@
                 "childRule": "Please contact the Mortgage Matchup Center ticket office at (602)379-7800, for information. Child policy Varies by event. Children age three (3) and above require a ticket for Phoenix Suns and Phoenix Mercury."
               },
               "upcomingEvents": {
-                "archtics": 242,
+                "archtics": 240,
                 "tmr": 1,
-                "ticketmaster": 81,
+                "ticketmaster": 83,
                 "_total": 324,
                 "_filtered": 0
-              }            
+              },
+              "_links": { "self": { "href": "/discovery/v2/venues/KovZpZAE617A?locale=en-us" } }
+            }
+          ],
+          "attractions": [
+            {
+              "name": "Duran Duran",
+              "type": "attraction",
+              "id": "K8vZ9171FP7",
+              "test": false,
+              "url": "https://www.ticketmaster.com/duran-duran-tickets/artist/734969",
+              "locale": "en-us",
+              "externalLinks": {
+                "youtube": [ { "url": "https://www.youtube.com/user/07DuranDuran" } ],
+                "twitter": [ { "url": "https://twitter.com/duranduran" } ],
+                "itunes": [ { "url": "https://music.apple.com/ca/artist/duran-duran/487384" } ],
+                "lastfm": [ { "url": "http://www.last.fm/music/Duran+Duran" } ],
+                "spotify": [ { "url": "https://open.spotify.com/artist/0lZoBs4Pzo7R89JM9lxwoT?autoplay=true" } ],
+                "wiki": [ { "url": "https://en.wikipedia.org/wiki/Duran_Duran" } ],
+                "facebook": [ { "url": "https://www.facebook.com/duranduran" } ],
+                "instagram": [ { "url": "https://www.instagram.com/duranduran/?hl=en" } ],
+                "musicbrainz": [
+                  {
+                    "id": "1a1cd7f3-e5df-4eca-bae2-2757c9e656b5",
+                    "url": "https://musicbrainz.org/artist/1a1cd7f3-e5df-4eca-bae2-2757c9e656b5"
+                  }
+                ],
+                "homepage": [ { "url": "http://www.duranduran.com/" } ]
+              },
+              "images": [
+                {
+                  "ratio": "3_2",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_ARTIST_PAGE_3_2.jpg",
+                  "width": 305,
+                  "height": 203,
+                  "fallback": false
+                },
+                {
+                  "ratio": "3_2",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_TABLET_LANDSCAPE_3_2.jpg",
+                  "width": 1024,
+                  "height": 683,
+                  "fallback": false
+                },
+                {
+                  "ratio": "3_2",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RETINA_PORTRAIT_3_2.jpg",
+                  "width": 640,
+                  "height": 427,
+                  "fallback": false
+                },
+                {
+                  "ratio": "4_3",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_CUSTOM.jpg",
+                  "width": 305,
+                  "height": 225,
+                  "fallback": false
+                },
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_EVENT_DETAIL_PAGE_16_9.jpg",
+                  "width": 205,
+                  "height": 115,
+                  "fallback": false
+                },
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_TABLET_LANDSCAPE_LARGE_16_9.jpg",
+                  "width": 2048,
+                  "height": 1152,
+                  "fallback": false
+                },
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RETINA_PORTRAIT_16_9.jpg",
+                  "width": 640,
+                  "height": 360,
+                  "fallback": false
+                },
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RECOMENDATION_16_9.jpg",
+                  "width": 100,
+                  "height": 56,
+                  "fallback": false
+                },
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_RETINA_LANDSCAPE_16_9.jpg",
+                  "width": 1136,
+                  "height": 639,
+                  "fallback": false
+                },
+                {
+                  "ratio": "16_9",
+                  "url": "https://s1.ticketm.net/dam/a/336/2d864a36-ea9e-4d50-bf8a-08f7b7cab336_TABLET_LANDSCAPE_16_9.jpg",
+                  "width": 1024,
+                  "height": 576,
+                  "fallback": false
+                }
+              ],
+              "classifications": [
+                {
+                  "primary": true,
+                  "segment": {
+                    "id": "KZFzniwnSyZfZ7v7nJ",
+                    "name": "Music"
+                  },
+                  "genre": {
+                    "id": "KnvZfZ7vAeA",
+                    "name": "Rock"
+                  },
+                  "subGenre": {
+                    "id": "KZazBEonSMnZfZ7v6dt",
+                    "name": "Alternative Rock"
+                  },
+                  "type": {
+                    "id": "KZAyXgnZfZ7v7nI",
+                    "name": "Undefined"
+                  },
+                  "subType": {
+                    "id": "KZFzBErXgnZfZ7v7lJ",
+                    "name": "Undefined"
+                  },
+                  "family": false
+                }
+              ],
+              "upcomingEvents": {
+                "ticketnet": 1,
+                "mfx-fi": 1,
+                "ticketmaster": 9,
+                "_total": 11,
+                "_filtered": 0
+              },
+              "_links": { "self": { "href": "/discovery/v2/attractions/K8vZ9171FP7?locale=en-us" } }
             }
           ]
         }
       }
     ]
+  },
+  "_links": { "self": { "href": "/discovery/v2/events?id=1Av0ZbwGkS0dwMO&keyword=music&locale=*" } },
+  "page": {
+    "size": 20,
+    "totalElements": 1,
+    "totalPages": 1,
+    "number": 0
   }
 }

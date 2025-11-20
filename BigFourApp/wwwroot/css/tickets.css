@@ -1,0 +1,297 @@
+﻿:root {
+    --ticket-primary: #0b1f5e;
+    --ticket-primary-2: #1e3a8a;
+    --ticket-surface: #0f1d3a;
+    --ticket-soft: #e4ecff;
+    --ticket-ink: #0f172a;
+    --ticket-muted: #6b7280;
+    --ticket-light: #f5f7fb;
+}
+
+.ticket-page {
+    background: linear-gradient(180deg, #eef3ff, #f8fafc);
+    padding: 28px 0;
+}
+
+.ticket-shell {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+.shadow-panel {
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+.bg-soft-primary {
+    background-color: rgba(11, 31, 94, 0.1);
+    color: var(--ticket-primary);
+}
+
+.ticket-list {
+    background: transparent;
+}
+
+.ticket-empty {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+}
+
+.ticket-tabs .nav-link {
+    border-radius: 999px;
+    font-weight: 700;
+    color: var(--ticket-muted);
+    padding: 10px 16px;
+    transition: all 0.15s ease;
+}
+
+    .ticket-tabs .nav-link.active {
+        color: #fff;
+        background: var(--ticket-primary);
+        box-shadow: 0 10px 22px rgba(11, 31, 94, 0.2);
+    }
+
+.ticket-pane {
+    display: none;
+}
+
+    .ticket-pane.show {
+        display: block;
+    }
+
+.ticket-card {
+    position: relative;
+    border-radius: 18px;
+    padding: 20px;
+    background: var(--ticket-surface);
+    color: #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+    .ticket-card.desktop {
+        background: #0e2149;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+    }
+
+.ticket-card-past {
+    background: #0b1b3d;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ticket-card h5 {
+    color: #f8fafc;
+}
+
+.ticket-meta {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.ticket-price-lg {
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.btn-ticket {
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--ticket-primary), var(--ticket-primary-2));
+    box-shadow: 0 12px 30px rgba(11, 31, 94, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .btn-ticket:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(11, 31, 94, 0.35);
+        color: #fff;
+    }
+
+    .btn-ticket.btn-outline {
+        background: transparent;
+        border: 1px solid #93c5fd;
+        color: #e5e7eb;
+        box-shadow: none;
+    }
+
+        .btn-ticket.btn-outline:hover {
+            background: rgba(147, 197, 253, 0.12);
+            color: #fff;
+        }
+
+.ticket-detail {
+    background: transparent;
+}
+
+.ticket-panel {
+    position: relative;
+    border-radius: 20px;
+    padding: 26px;
+    background: linear-gradient(135deg, #0b1f5e, #132b63);
+    color: #e5e7eb;
+    overflow: hidden;
+}
+
+    .ticket-panel::before {
+        content: "";
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 70%);
+        top: -60px;
+        right: -40px;
+    }
+
+    .ticket-panel::after {
+        content: "";
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 70%);
+        bottom: -80px;
+        left: -40px;
+    }
+
+    .ticket-panel > * {
+        position: relative;
+        z-index: 1;
+    }
+
+.ticket-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.ticket-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.12);
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+}
+
+.ticket-chip-main {
+    color: #fff;
+}
+
+.ticket-chip.soft {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ticket-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.ticket-meta-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px 14px;
+    color: #e5e7eb;
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+    .ticket-meta-card .label {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+        margin: 0 0 4px 0;
+        color: #cbd5e1;
+    }
+
+    .ticket-meta-card .value {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #fff;
+    }
+
+    .ticket-meta-card .sub {
+        margin: 2px 0 0 0;
+        font-size: 0.9rem;
+        color: #e2e8f0;
+    }
+
+.buyer-compact {
+    font-size: 0.88rem;
+    line-height: 1.1;
+}
+
+.ticket-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.qr-card {
+    border-radius: 20px;
+    padding: 26px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+}
+
+.qr-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0b1f5e, #1e3a8a);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 0.75rem;
+}
+
+.qr-canvas {
+    width: 220px;
+    height: 220px;
+}
+
+.code-text {
+    font-family: "SFMono-Regular", "Menlo", "Monaco", Consolas, "Liberation Mono", Courier New, monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ticket-ink);
+    word-break: break-all;
+}
+
+@media (max-width: 768px) {
+    .ticket-page {
+        padding: 18px 0;
+    }
+
+    .ticket-shell {
+        padding: 20px;
+    }
+
+    .ticket-title {
+        font-size: 1.6rem;
+    }
+
+    .ticket-panel,
+    .ticket-card,
+    .qr-card {
+        padding: 20px;
+    }
+
+    .ticket-meta-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}

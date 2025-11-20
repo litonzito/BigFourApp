@@ -22,12 +22,13 @@ public class EventsController : Controller
             return NotFound();
 
         var evento = _context.Events
-            .Include(e => e.Images)
             .Include(e => e.Venues)
             .Include(e => e.Classifications)
             .AsEnumerable()
             .FirstOrDefault(e => e.Id_Evento.Equals(id, StringComparison.OrdinalIgnoreCase));
 
+        var venue = _context.Venues.Include(v => v.VenueImageUrl);
+        
         if (evento == null)
             return NotFound();
 

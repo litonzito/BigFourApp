@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using static System.Net.Mime.MediaTypeNames;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using BigFourApp.Models;
+
 namespace BigFourApp.Models.Event
 {
     public class Evento
@@ -20,12 +22,17 @@ namespace BigFourApp.Models.Event
         public string SeatmapUrl { get; set; } = string.Empty;
 
         public bool SafeTix { get; set; } = false;
+        public bool IsCancelled { get; set; } = false;
+
+        public string? EventImageUrl { get; internal set; }
+
+        [ForeignKey(nameof(Manager))]
+        public string? ManagerId { get; set; }
+        public ApplicationUser? Manager { get; set; }
 
         // Inicializar colecciones para evitar null warnings
         public ICollection<Venue> Venues { get; set; } = new List<Venue>();
         public ICollection<Classification> Classifications { get; set; } = new List<Classification>();
-        public ICollection<Images> Images { get; set; } = new List<Images>();
         public ICollection<Asiento> Asientos { get; set; } = new List<Asiento>();
-
     }
 }

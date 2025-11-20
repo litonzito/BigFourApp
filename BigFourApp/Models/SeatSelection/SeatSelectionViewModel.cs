@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BigFourApp.Models;
 
@@ -24,6 +25,8 @@ namespace BigFourApp.Models.ViewModels
     {
         public string SectionId { get; set; } = "";
         public string Name { get; set; } = "";
+        public decimal BasePrice { get; set; }
+        public int SeatsPerRow { get; set; }
         public IReadOnlyList<RowVM> Rows { get; set; } = new List<RowVM>();
     }
 
@@ -51,5 +54,14 @@ namespace BigFourApp.Models.ViewModels
         public string SeatId { get; set; } = "";
         public string Label { get; set; } = "";
         public decimal Price { get; set; }
+    }
+
+    public class SoldOutViewModel
+    {
+        public string EventName { get; set; } = "";
+        public DateTime EventDate { get; set; }
+        public string? VenueName { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
     }
 }

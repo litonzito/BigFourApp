@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BigFourApp.Models;
 using BigFourApp.Models.Event;
@@ -9,20 +8,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BigFourApp.Data
 {
-    /// <summary>
-    /// Seeder reutilizable que asegura la creación de asientos para cada evento, generando numeración y estado inicial cuando faltan registros en la tabla Asientos.
-    /// </summary>
     public static class SeatSeeder
     {
-        /// <summary>
-        /// Asegura que todos los eventos tengan asientos generados.
-        /// </summary>
         public static void EnsureSeats(BaseDatos context)
         {
             var events = context.Events
                 .Include(e => e.Venues)
+                    .ThenInclude(v => v.Sections)
                 .Include(e => e.Asientos)
+                .Where(e => !e.IsCancelled)
                 .ToList();
+
+            var changed = false;
 
             foreach (var evento in events)
             {
@@ -31,74 +28,111 @@ namespace BigFourApp.Data
                     continue;
                 }
 
-                var venue = evento.Venues.FirstOrDefault();
-                var definitions = VenueLayout.GetSections(venue);
-
-                if (definitions.Count == 0)
-                {
-                    definitions = new[] { new SectionDefinition($"SEC-{evento.Id_Evento}", $"{evento.Name} Section", 85m) };
-                }
-
-                var newSeats = new List<Asiento>();
-
-                for (var sectionIndex = 0; sectionIndex < definitions.Count; sectionIndex++)
-                {
-                    var definition = definitions[sectionIndex];
-                    var seatCount = EstimateSeatCount(definition);
-                    var sectionCode = sectionIndex + 1;
-
-                    for (var seatOffset = 0; seatOffset < seatCount; seatOffset++)
-                    {
-                        var seatNumberWithinSection = seatOffset + 1;
-                        var numero = sectionCode * 1000 + seatNumberWithinSection;
-
-                        newSeats.Add(new Asiento
-                        {
-                            EventId = evento.Id_Evento,
-                            Numero = numero,
-                            Estado = EstadoAsiento.Disponible
-                        });
-                    }
-                }
-
-                if (newSeats.Count > 0)
-                {
-                    context.Asientos.AddRange(newSeats);
-                }
+                changed |= GenerateSeatsForEventInternal(context, evento, overwriteExisting: false);
             }
 
-            if (context.ChangeTracker.HasChanges())
+            if (changed)
             {
                 context.SaveChanges();
             }
         }
 
-        /// <summary>
-        /// Estima el número de asientos en una sección basada en su código.
-        /// </summary>
-        private static int EstimateSeatCount(SectionDefinition definition)
+        public static bool GenerateSeatsForEvent(BaseDatos context, Evento evento, bool overwriteExisting = false, bool saveChanges = false)
         {
-            var code = definition.SectionId.AsSpan(4);
-
-            if (code.Length == 1 && char.IsLetter(code[0]))
+            if (evento is null)
             {
-                return 80;
+                return false;
             }
 
-            if (int.TryParse(code, out var numericCode))
+            context.Entry(evento).Collection(e => e.Venues).Query().Include(v => v.Sections).Load();
+            context.Entry(evento).Collection(e => e.Asientos).Load();
+
+            var changed = GenerateSeatsForEventInternal(context, evento, overwriteExisting);
+
+            if (changed && saveChanges)
             {
-                if (numericCode >= 200)
+                context.SaveChanges();
+            }
+
+            return changed;
+        }
+
+        private static bool GenerateSeatsForEventInternal(BaseDatos context, Evento evento, bool overwriteExisting)
+        {
+            if (evento.Asientos.Any() && !overwriteExisting)
+            {
+                return false;
+            }
+            var venue = evento.Venues.FirstOrDefault();
+            var definitions = VenueLayout.GetSections(venue);
+
+            if (definitions.Count == 0)
+            {
+                definitions = new[]
                 {
-                    return 120;
+                    new SectionDefinition($"SEC-{evento.Id_Evento}", $"{evento.Name} General", 85m, 240, 12)
+                };
+            }
+
+            var existingSeats = evento.Asientos
+                .Where(a => !string.IsNullOrWhiteSpace(a.SectionId))
+                .GroupBy(a => a.SectionId!)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var seatsToAdd = new List<Asiento>();
+
+            foreach (var definition in definitions)
+            {
+                existingSeats.TryGetValue(definition.SectionId, out var seatsInSection);
+                var availableSeats = seatsInSection?.Where(s => s.Estado == EstadoAsiento.Disponible).ToList() ?? new List<Asiento>();
+                var totalSeats = seatsInSection?.Count ?? 0;
+
+                if (!overwriteExisting && totalSeats >= definition.SeatCount)
+                {
+                    continue;
                 }
 
-                if (numericCode >= 100)
+                if (overwriteExisting)
                 {
-                    return 100;
+                    var seatsToKeep = seatsInSection?
+                        .Where(s => s.Estado != EstadoAsiento.Disponible)
+                        .ToList() ?? new List<Asiento>();
+
+                    context.Asientos.RemoveRange(seatsInSection?.Except(seatsToKeep) ?? Enumerable.Empty<Asiento>());
+
+                    totalSeats = seatsToKeep.Count;
+                    availableSeats = seatsToKeep.Where(s => s.Estado == EstadoAsiento.Disponible).ToList();
+                }
+
+                var seatsNeeded = definition.SeatCount - totalSeats;
+                if (seatsNeeded <= 0)
+                {
+                    continue;
+                }
+
+                var nextNumber = seatsInSection?.Any() == true
+                    ? seatsInSection.Max(s => s.Numero) + 1
+                    : (definitions.ToList().IndexOf(definition) + 1) * 10000 + 1;
+
+                for (var i = 0; i < seatsNeeded; i++)
+                {
+                    seatsToAdd.Add(new Asiento
+                    {
+                        EventId = evento.Id_Evento,
+                        Numero = nextNumber++,
+                        SectionId = definition.SectionId,
+                        Estado = EstadoAsiento.Disponible
+                    });
                 }
             }
 
-            return 60;
+            if (!seatsToAdd.Any())
+            {
+                return false;
+            }
+
+            context.Asientos.AddRange(seatsToAdd);
+            return true;
         }
     }
 }

@@ -1,0 +1,77 @@
+@model EventDashboardVM
+@{
+    ViewData["Title"] = "Panel de eventos";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Eventos creados</h1>
+            <p class="text-muted mb-0">Gestiona los eventos publicados desde este panel.</p>
+        </div>
+        <a asp-action="CreateEvent" class="btn btn-primary">Crear nuevo evento</a>
+    </div>
+
+    @if (!Model.Events.Any())
+    {
+        <div class="alert alert-info">
+            Aún no tienes eventos registrados. Utiliza el botón "Crear nuevo evento".
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Evento</th>
+                        <th>Fecha</th>
+                        <th>Venue</th>
+                        <th>Secciones</th>
+                        <th>Asientos totales</th>
+                        <th>Asientos disponibles</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ev in Model.Events)
+                    {
+                        var badgeClass = ev.IsCancelled ? "bg-danger" : "bg-success";
+                        var badgeText = ev.IsCancelled ? "Cancelado" : "Activo";
+                        <tr>
+                            <td class="fw-semibold">
+                                <div>@ev.Name</div>
+                                @if (!string.IsNullOrWhiteSpace(ev.ImageUrl))
+                                {
+                                    <img src="@ev.ImageUrl" class="img-thumbnail mt-2" style="max-height:60px;" alt="@ev.Name" />
+                                }
+                            </td>
+                            <td>@ev.Date.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div>@ev.VenueName</div>
+                                <div class="text-muted small">@($"{ev.City}, {ev.State}".Trim().Trim(','))</div>
+                            </td>
+                            <td>@ev.SectionCount</td>
+                            <td>@ev.SeatCount.ToString("N0")</td>
+                            <td class="fw-semibold">@ev.AvailableSeats.ToString("N0")</td>
+                            <td><span class="badge @badgeClass">@badgeText</span></td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="EditEvent" asp-route-id="@ev.Id" class="btn btn-outline-primary btn-sm">Editar</a>
+                                    @if (!ev.IsCancelled)
+                                    {
+                                        <form asp-action="CancelEvent" asp-route-id="@ev.Id" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Cancelar</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

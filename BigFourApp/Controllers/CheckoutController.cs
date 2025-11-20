@@ -1,193 +1,302 @@
 ﻿using BigFourApp.Models;
 using BigFourApp.Models.ViewModels;
 using BigFourApp.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Stripe;
+using Stripe.Checkout;
+using System.Text.RegularExpressions;
 
 namespace BigFourApp.Controllers
 {
+    [Authorize]
     public class CheckoutController : Controller
     {
         private readonly BaseDatos _context;
-        private const int SeatsPerRow = 10;
-        private const decimal DefaultBasePrice = 85m;
+        private readonly IEmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly StripeSettings _stripe;
 
-        public CheckoutController(BaseDatos context)
+        public CheckoutController(
+            BaseDatos context,
+            IEmailService emailService,
+            UserManager<ApplicationUser> userManager,
+            IOptions<StripeSettings> stripeOptions)
         {
             _context = context;
+            _emailService = emailService;
+            _userManager = userManager;
+            _stripe = stripeOptions.Value;
+
+            StripeConfiguration.ApiKey = _stripe.SecretKey;
         }
 
+        // PAYMENT (Resumen)
         [HttpGet]
         public IActionResult Payment(string id, [FromQuery] List<string> seatIds)
         {
             if (string.IsNullOrWhiteSpace(id) || seatIds == null || seatIds.Count == 0)
                 return RedirectToAction("Index", "Home");
 
-            var evento = _context.Events
-                .Include(e => e.Asientos)
-                .Include(e => e.Venues)
-                .FirstOrDefault(e => e.Id_Evento == id);
+            var json = TempData["CheckoutVM"] as string;
+            if (string.IsNullOrEmpty(json))
+                return RedirectToAction("Index", "Seat", new { id });
 
-            if (evento == null) return NotFound();
+            TempData.Keep("CheckoutVM");
 
-            var allSeats = evento.Asientos
-                .Where(a => string.Equals(a.EventId, id, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(a => a.Numero)
+            var vmFromCart = JsonConvert.DeserializeObject<SeatSelectionViewModel>(json);
+
+            if (!string.Equals(vmFromCart?.EventId, id, StringComparison.OrdinalIgnoreCase))
+                return RedirectToAction("Index", "Seat", new { id });
+
+            var filteredItems = vmFromCart.CartItems
+                .Where(ci => seatIds.Contains(ci.SeatId))
                 .ToList();
 
-            var totalRows = Math.Max(1, (allSeats.Count + SeatsPerRow - 1) / SeatsPerRow);
-            var rowBySeatId = new Dictionary<int, int>();
-            for (int i = 0; i < allSeats.Count; i++)
-            {
-                var seat = allSeats[i];
-                var rowNumber = (i / SeatsPerRow) + 1;
-                rowBySeatId[seat.Id_Asiento] = rowNumber;
-            }
+            if (!filteredItems.Any())
+                return RedirectToAction("Index", "Seat", new { id });
 
-            var selected = allSeats.Where(s =>
-            {
-                // seatIds vienen como string; Id_Asiento es int
-                return seatIds.Contains(s.Id_Asiento.ToString());
-            }).ToList();
+            vmFromCart.CartItems = filteredItems;
+            vmFromCart.Subtotal = filteredItems.Sum(i => i.Price);
 
-            var items = selected.Select(s =>
+            TempData["CheckoutVM"] = JsonConvert.SerializeObject(vmFromCart);
+            TempData["seatIds"] = JsonConvert.SerializeObject(seatIds);
+            TempData["eventId"] = id;
+
+            return View("Payment", vmFromCart);
+        }
+
+        // CREATE CHECKOUT SESSION (Stripe)
+        [HttpPost]
+        public IActionResult CreateCheckoutSession(string eventId, List<string> seatIds, string nombre, string apellido, string metodoPago)
+        {
+            var json = TempData["CheckoutVM"] as string;
+            if (string.IsNullOrWhiteSpace(json))
+                return BadRequest("No se pudo recuperar la información del carrito.");
+
+            var vm = JsonConvert.DeserializeObject<SeatSelectionViewModel>(json);
+
+            var items = vm.CartItems.Where(ci => seatIds.Contains(ci.SeatId)).ToList();
+            if (!items.Any())
+                return BadRequest("No hay asientos para procesar.");
+
+            decimal total = items.Sum(i => i.Price);
+            long stripeAmount = (long)(total * 100);
+
+            TempData["Nombre"] = nombre;
+            TempData["Apellido"] = apellido;
+            TempData["MetodoPago"] = metodoPago;
+            TempData["seatIds"] = JsonConvert.SerializeObject(seatIds);
+            TempData["eventId"] = eventId;
+            TempData["CheckoutVM"] = JsonConvert.SerializeObject(vm);
+
+            TempData.Keep();
+
+            var options = new SessionCreateOptions
             {
-                var rowNumber = rowBySeatId[s.Id_Asiento];
-                var price = CalculatePrice(rowNumber, totalRows, DefaultBasePrice);
-                return new CartItemVM
+                Mode = "payment",
+                SuccessUrl = Url.Action("StripeSuccess", "Checkout", null, Request.Scheme) + "?session_id={CHECKOUT_SESSION_ID}",
+                CancelUrl = Url.Action("StripeCancel", "Checkout", null, Request.Scheme),
+
+                LineItems = new List<SessionLineItemOptions>
                 {
-                    SeatId = s.Id_Asiento.ToString(),
-                    Label = $"Asiento {s.Numero}",
-                    Price = price
-                };
-            }).ToList();
-
-            var v = evento.Venues.FirstOrDefault();
-
-            var vm = new SeatSelectionViewModel
-            {
-                EventId = evento.Id_Evento,
-                EventName = evento.Name,
-                VenueName = v?.Name,
-                City = v?.City,
-                State = v?.State,
-                CartItems = items,
-                Subtotal = items.Sum(x => x.Price)
+                    new SessionLineItemOptions
+                    {
+                        Quantity = 1,
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = stripeAmount,
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "Boletos para evento"
+                            }
+                        }
+                    }
+                }
             };
 
-            return View("Payment", vm);
+            var service = new SessionService();
+            var session = service.Create(options);
+
+            return Redirect(session.Url);
         }
 
-        private static decimal CalculatePrice(int rowNumber, int totalRows, decimal basePrice)
-        {
-            const decimal rowAdjustment = 7.5m;
-            var effectiveRows = totalRows == 0 ? 1 : totalRows;
-            var multiplier = effectiveRows - rowNumber;
-            var price = basePrice + (multiplier * rowAdjustment);
-            price = Math.Round(price, 2, MidpointRounding.AwayFromZero);
-            return price < 25m ? 25m : price;
-        }
-
+        // STRIPE SUCCESS
         [HttpGet]
-        public IActionResult ConfirmPurchase()
+        public IActionResult StripeSuccess(string session_id)
         {
-            return View("Receipt");
-        }
+            if (string.IsNullOrWhiteSpace(session_id))
+                return RedirectToAction("Index", "Home");
 
-        [HttpPost]
-        public IActionResult ConfirmPurchase(
-        [FromForm] string eventId,
-        [FromForm] List<string> seatIds,
-        [FromForm] string? nombre,
-        [FromForm] string? apellido,
-        [FromForm] string? metodoPago,
-        // Los datos de tarjeta se postean pero aquí no se usan/persisten (solo se validan en UI)
-        [FromForm] string? cardNumber,
-        [FromForm] string? cardName,
-        [FromForm] string? expiryMonth,
-        [FromForm] string? expiryYear,
-        [FromForm] string? cvv
-    )
-        {
-            if (string.IsNullOrWhiteSpace(eventId) || seatIds == null || seatIds.Count == 0)
-                return BadRequest("Datos inválidos.");
+            var session = new SessionService().Get(session_id);
+            var paymentIntent = new PaymentIntentService().Get(session.PaymentIntentId);
 
-            // Carga evento y asientos (solo lectura)
+            if (paymentIntent.Status != "succeeded")
+                return RedirectToAction("StripeCancel");
+
+            var json = TempData["CheckoutVM"] as string;
+            if (string.IsNullOrWhiteSpace(json))
+                return RedirectToAction("Index", "Home");
+
+            var vm = JsonConvert.DeserializeObject<SeatSelectionViewModel>(json);
+
+            var seatIds = JsonConvert.DeserializeObject<List<string>>(TempData["seatIds"] as string);
+            string eventId = TempData["eventId"] as string;
+
+            string nombre = TempData["Nombre"]?.ToString() ?? "";
+            string apellido = TempData["Apellido"]?.ToString() ?? "";
+            string metodoPago = TempData["MetodoPago"]?.ToString() ?? "Stripe";
+
             var evento = _context.Events
                 .Include(e => e.Asientos)
                 .Include(e => e.Venues)
                 .FirstOrDefault(e => e.Id_Evento == eventId);
 
-            if (evento == null)
-                return NotFound();
-
-            // Filtra seleccionados
-            var ids = seatIds
-                .Where(s => int.TryParse(s, out _))
-                .Select(int.Parse)
-                .ToHashSet();
+            var ids = seatIds.Select(int.Parse).ToHashSet();
 
             var selectedSeats = evento.Asientos
                 .Where(a => ids.Contains(a.Id_Asiento))
                 .OrderBy(a => a.Numero)
                 .ToList();
 
-            // PERSISTENCIA: Marca asientos como ocupados
-            foreach (var seat in selectedSeats)
+            foreach (var s in selectedSeats)
+                s.Estado = EstadoAsiento.Ocupado;
+
+            var user = _userManager.GetUserAsync(User).Result;
+
+            var items = vm.CartItems.Where(ci => seatIds.Contains(ci.SeatId)).ToList();
+
+            var venta = new Venta
             {
-                seat.Estado = EstadoAsiento.Ocupado;
+                Id_Usuario = user.Id,
+                Fecha = DateTime.Now,
+                MetodoPago = metodoPago,
+                Total = items.Sum(i => i.Price)
+            };
+
+            _context.Ventas.Add(venta);
+            _context.SaveChanges();
+
+            foreach (var item in items)
+            {
+                var asiento = selectedSeats.First(a => a.Id_Asiento.ToString() == item.SeatId);
+
+                var boleto = new Boleto
+                {
+                    Notificar = true,
+                    CodigoUnico = Guid.NewGuid().ToString("N")
+                };
+                _context.Boletos.Add(boleto);
+
+                _context.DetallesVenta.Add(new DetalleVenta
+                {
+                    Id_Venta = venta.Id_Venta,
+                    Boleto = boleto,
+                    Id_Asiento = asiento.Id_Asiento,
+                    Cantidad = 1,
+                    PrecioUnitario = item.Price
+                });
             }
 
             _context.SaveChanges();
 
-            // Recalcular precios igual que en Payment(GET)
-            var allSeats = evento.Asientos
-                .Where(a => string.Equals(a.EventId, evento.Id_Evento, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(a => a.Numero)
-                .ToList();
+            var venue = evento.Venues.FirstOrDefault();
 
-            var totalRows = Math.Max(1, (allSeats.Count + SeatsPerRow - 1) / SeatsPerRow);
-
-            var rowBySeatId = new Dictionary<int, int>();
-            for (int i = 0; i < allSeats.Count; i++)
+            var receipt = new ReceiptViewModel
             {
-                var seat = allSeats[i];
-                var rowNumber = (i / SeatsPerRow) + 1;
-                rowBySeatId[seat.Id_Asiento] = rowNumber;
-            }
-
-            var items = selectedSeats.Select(s =>
-            {
-                var rowNumber = rowBySeatId[s.Id_Asiento];
-                var price = CalculatePrice(rowNumber, totalRows, DefaultBasePrice);
-                return new CartItemVM
-                {
-                    SeatId = s.Id_Asiento.ToString(),
-                    Label = $"Asiento {s.Numero}",
-                    Price = price
-                };
-            }).ToList();
-
-            var vm = new SeatSelectionViewModel
-            {
+                nombre = nombre,
+                apellido = apellido,
+                metodoPago = metodoPago,
                 EventId = evento.Id_Evento,
                 EventName = evento.Name,
-                VenueName = evento.Venues.FirstOrDefault()?.Name,
-                City = evento.Venues.FirstOrDefault()?.City,
-                State = evento.Venues.FirstOrDefault()?.State,
+                VenueName = venue?.Name,
+                City = venue?.City,
+                State = venue?.State,
                 CartItems = items,
-                Subtotal = items.Sum(x => x.Price)
+                Subtotal = items.Sum(i => i.Price)
             };
 
-            // Se pasan los datos de Payment al recibo
-            ViewBag.Nombre = nombre;
-            ViewBag.Apellido = apellido;
-            ViewBag.MetodoPago = string.IsNullOrWhiteSpace(metodoPago) ? "No especificado" : metodoPago;
+            TempData["ReceiptVM"] = JsonConvert.SerializeObject(receipt);
 
-            return View("Receipt", vm);
+            return View("Receipt", receipt);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendReceiptEmail(
+            string eventId,
+            List<string> seatIds,
+            string? nombre,
+            string? apellido,
+            string? metodoPago)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+                return BadRequest("No se pudo obtener el correo del usuario.");
+
+            var receiptJson = TempData["ReceiptVM"] as string;
+            if (string.IsNullOrWhiteSpace(receiptJson))
+                return BadRequest("No se pudo recuperar la información del recibo.");
+
+            TempData.Keep("ReceiptVM");
+
+            var vmFromReceipt = JsonConvert.DeserializeObject<ReceiptViewModel>(receiptJson);
+
+            var evento = _context.Events
+                .Include(e => e.Asientos)
+                .Include(e => e.Venues)
+                .FirstOrDefault(e => e.Id_Evento == eventId);
+
+            var items = vmFromReceipt.CartItems;
+
+            string subject = $"Recibo de compra — {vmFromReceipt.EventName}";
+
+            string htmlSeatList = string.Join("", items.Select(i => $"<li>{i.Label}: {i.Price:C}</li>"));
+
+            string body = $@"
+                <p>Gracias por tu compra, <b>{vmFromReceipt.nombre} {vmFromReceipt.apellido}</b>.</p>
+                <p><b>Método de pago:</b> {vmFromReceipt.metodoPago}</p>
+
+                <h3>Asientos adquiridos</h3>
+                <ul>{htmlSeatList}</ul>
+
+                <p><b>Total pagado:</b> ${vmFromReceipt.Subtotal:0.00}</p>
+
+                <p>Evento: <b>{vmFromReceipt.EventName}</b></p>
+                <p>Lugar: {vmFromReceipt.VenueName}</p>
+                <p>Fecha de compra: {DateTime.Now:dd/MM/yyyy HH:mm}</p>
+            ";
+
+            string plainBody = Regex.Replace(body, "<.*?>", string.Empty).Trim();
+
+            var notificacion = new Notificacion
+            {
+                Id_Usuario = user.Id,
+                Mensaje = $"Subject:{subject} \n Body:{plainBody}",
+                Tipo = "Recibo",
+                fecha = DateTime.Now
+            };
+
+            _context.Notificaciones.Add(notificacion);
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendEmail(user.Email, subject, body);
+
+            TempData["Message"] = "Recibo enviado a tu correo.";
+
+            return View("Receipt", vmFromReceipt);
+        }
+
+        // STRIPE CANCEL
+        [HttpGet]
+        public IActionResult StripeCancel()
+        {
+            TempData["SeatError"] = "El pago fue cancelado.";
+            return RedirectToAction("Index", "Home");
         }
     }
 }
