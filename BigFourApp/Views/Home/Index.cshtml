@@ -5,14 +5,14 @@
 }
 
 
-<section class="hero-section d-flex flex-column justify-content-center align-items-center text-center">
+<section class="hero-section-full d-flex flex-column justify-content-center align-items-center text-center">
     <h1 class="hero-title">BigFourApp</h1>
 
     @if (!User.Identity!.IsAuthenticated)
     {
         <p class="hero-subtitle">Descubre los mejores eventos disponibles</p>
 
-         <div class="mt-3 d-flex gap-3">
+        <div class="mt-3 d-flex gap-3">
             <a href="/Identity/Account/Login" class="btn btn-light btn-lg px-4">
                 Iniciar Sesión
             </a>
@@ -23,8 +23,8 @@
     }
     else
     {
-         <p class="hero-subtitle">
-            Bienvenido, <strong>@User.Identity.Name</strong> 
+        <p class="hero-subtitle">
+            Bienvenido, <strong>@User.Identity.Name</strong>
         </p>
 
         @if (User.IsInRole("EventManager"))
@@ -39,6 +39,7 @@
         }
     }
 </section>
+
 
 
 
@@ -108,17 +109,27 @@
 <style>
 
     /* HERO */
-    .hero-section {
-        height: 20vh;
-        background:  #0d6efd;
-        color: white;
-        border-bottom: 4px solid #062c6e;
-        padding: 20px;
+  .hero-section-full {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+
+    height: 26vh;
+    display: flex;
+
+    background: linear-gradient(135deg, #0d6efd, #003c97);
+    color: white;
+    border-bottom: 4px solid #062c6e;
+    padding: 40px 20px;
     }
 
     .hero-title {
-        font-size: 2.6rem;
-        font-weight: 700;
+        color: white;
+        font-size: 2.8rem;
+        font-weight: 800;
     }
 
     .hero-subtitle {
