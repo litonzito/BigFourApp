@@ -163,7 +163,7 @@ namespace BigFourApp.Controllers
                 .Where(a => ids.Contains(a.Id_Asiento))
                 .OrderBy(a => a.Numero)
                 .ToList();
-
+            
             foreach (var s in selectedSeats)
                 s.Estado = EstadoAsiento.Ocupado;
 
@@ -189,18 +189,23 @@ namespace BigFourApp.Controllers
                 var boleto = new Boleto
                 {
                     Notificar = true,
-                    CodigoUnico = Guid.NewGuid().ToString("N")
+                    CodigoUnico = Guid.NewGuid().ToString("N"),
+
+                    DetalleVentas = new List<DetalleVenta>()
                 };
                 _context.Boletos.Add(boleto);
 
-                _context.DetallesVenta.Add(new DetalleVenta
+                var detalle = new DetalleVenta
                 {
                     Id_Venta = venta.Id_Venta,
                     Boleto = boleto,
                     Id_Asiento = asiento.Id_Asiento,
                     Cantidad = 1,
                     PrecioUnitario = item.Price
-                });
+                };
+
+                boleto.DetalleVentas.Add(detalle);
+                _context.DetallesVenta.Add(detalle);
             }
 
             _context.SaveChanges();
