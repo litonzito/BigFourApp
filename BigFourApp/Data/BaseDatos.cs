@@ -36,6 +36,13 @@ namespace BigFourApp.Persistence
 
             // ------- RELACIONES PRINCIPALES -------
 
+            // Usuario (1) -> (N) Eventos administrados
+            modelBuilder.Entity<Evento>()
+                .HasOne(e => e.Manager)
+                .WithMany(u => u.ManagedEvents)
+                .HasForeignKey(e => e.ManagerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Usuario (1) -> (N) Ventas
             modelBuilder.Entity<Venta>()
                 .HasOne(v => v.Usuario)

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BigFourApp.Controllers
 {
@@ -24,18 +25,27 @@ namespace BigFourApp.Controllers
         private readonly BaseDatos _context;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<ManagerController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ManagerController(BaseDatos context, IWebHostEnvironment environment, ILogger<ManagerController> logger)
+        public ManagerController(BaseDatos context, IWebHostEnvironment environment, ILogger<ManagerController> logger, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _environment = environment;
             _logger = logger;
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> EventDashboard()
         {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Forbid();
+            }
+
             var events = await _context.Events
+                .Where(e => e.ManagerId == userId)
 
                 .Include(e => e.Venues)
                     .ThenInclude(v => v.Sections)
@@ -82,6 +92,12 @@ namespace BigFourApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateEvent(CreateEventVM vm)
         {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Forbid();
+            }
+
             var hasValidDate = TryParseEventDate(vm, out var eventDate);
             if (!ModelState.IsValid || !hasValidDate)
             {
@@ -106,7 +122,8 @@ namespace BigFourApp.Controllers
                 Date = eventDate,
                 SeatmapUrl = vm.ExistingSeatmapUrl ?? string.Empty,
                 SafeTix = vm.SafeTix,
-                IsCancelled = vm.IsCancelled
+                IsCancelled = vm.IsCancelled,
+                ManagerId = userId
                
             };
 
@@ -150,8 +167,15 @@ namespace BigFourApp.Controllers
                 return NotFound();
             }
 
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Forbid();
+            }
+
             var evento = await _context.Events
-             
+                .Where(e => e.ManagerId == userId)
+
                 .Include(e => e.Classifications)
                 .Include(e => e.Venues)
                     .ThenInclude(v => v.Sections)
@@ -171,6 +195,12 @@ namespace BigFourApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditEvent(CreateEventVM vm)
         {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Forbid();
+            }
+
             var hasValidDate = TryParseEventDate(vm, out var eventDate);
             if (!ModelState.IsValid || !hasValidDate)
             {
@@ -192,7 +222,8 @@ namespace BigFourApp.Controllers
             }
 
             var evento = await _context.Events
-                
+                .Where(e => e.ManagerId == userId)
+
                 .Include(e => e.Classifications)
                 .Include(e => e.Venues)
                     .ThenInclude(v => v.Sections)
@@ -202,6 +233,11 @@ namespace BigFourApp.Controllers
             if (evento is null)
             {
                 return NotFound();
+            }
+
+            if (string.IsNullOrEmpty(evento.ManagerId))
+            {
+                evento.ManagerId = userId;
             }
 
             evento.Name = vm.Name.Trim();
@@ -258,7 +294,13 @@ namespace BigFourApp.Controllers
                 return RedirectToAction(nameof(EventDashboard));
             }
 
-            var evento = await _context.Events.FirstOrDefaultAsync(e => e.Id_Evento == id);
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Forbid();
+            }
+
+            var evento = await _context.Events.FirstOrDefaultAsync(e => e.Id_Evento == id && e.ManagerId == userId);
             if (evento is null)
             {
                 return RedirectToAction(nameof(EventDashboard));
