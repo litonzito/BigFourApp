@@ -1,0 +1,153 @@
+﻿@model IEnumerable<BigFourApp.Models.DetalleVenta>
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    ViewData["Title"] = "Mis boletos";
+    var tickets = Model ?? Enumerable.Empty<BigFourApp.Models.DetalleVenta>();
+    var now = DateTime.Now;
+    Func<BigFourApp.Models.DetalleVenta, bool> isPast = dv =>
+    {
+        var date = dv.Asiento?.Event?.Date ?? DateTime.MinValue;
+        return date > DateTime.MinValue && date < now;
+    };
+    Func<BigFourApp.Models.DetalleVenta, string> seatLabel = dv =>
+    {
+        var seat = dv.Asiento;
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(seat?.SectionId))
+        {
+            parts.Add($"Zona {seat.SectionId}");
+        }
+        if (seat?.Numero > 0)
+        {
+            parts.Add($"Asiento {seat.Numero}");
+        }
+        return parts.Any() ? string.Join(" · ", parts) : "Asiento sin asignar";
+    };
+    var upcomingTickets = tickets.Where(dv => !isPast(dv)).ToList();
+    var pastTickets = tickets.Where(dv => isPast(dv)).ToList();
+}
+
+<link rel="stylesheet" href="~/css/tickets.css" asp-append-version="true" />
+
+<div class="ticket-page">
+    <div class="container py-5">
+        <div class="ticket-shell shadow-panel">
+            <div class="ticket-list">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                    <div>
+                        <h1 class="mb-1 fw-bold text-primary">Mis boletos</h1>
+                        <p class="text-muted mb-0">Revisa tus accesos vigentes y pasados.</p>
+                    </div>
+                    <span class="badge bg-soft-primary rounded-pill px-3 py-2 shadow-sm">Total @tickets.Count()</span>
+                </div>
+
+                @if (!tickets.Any())
+                {
+                    <div class="ticket-empty text-center p-5 rounded-4 shadow-sm">
+                        <h5 class="fw-semibold mb-2 text-primary">Aun no tienes boletos</h5>
+                        <p class="text-muted mb-0">Compra tus entradas y apareceran aqui.</p>
+                    </div>
+                }
+                else
+                {
+                    <ul class="nav nav-pills ticket-tabs mb-4" id="ticketTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-target="#upcomingSection" type="button" role="tab">Vigentes (@upcomingTickets.Count)</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-target="#pastSection" type="button" role="tab">Pasadas (@pastTickets.Count)</button>
+                        </li>
+                    </ul>
+
+                    <div class="ticket-pane show" id="upcomingSection">
+                        @if (!upcomingTickets.Any())
+                        {
+                            <div class="text-muted small ps-2">No tienes eventos proximos.</div>
+                        }
+                        else
+                        {
+                            <div class="row g-4">
+                                @foreach (var ticket in upcomingTickets)
+                                {
+                                    var eventDate = ticket.Asiento?.Event?.Date ?? DateTime.MinValue;
+                                    var venue = ticket.Asiento?.Event?.Venues?.FirstOrDefault();
+                                    var orderCode = ticket.Venta?.Id_Venta.ToString() ?? ticket.Id_DetalleVenta.ToString();
+                                    <div class="col-12">
+                                        <div class="ticket-card desktop shadow-lg h-100">
+                                            <div class="row g-3 align-items-center">
+                                                <div class="col-md-9">
+                                                    <h5 class="fw-bold mb-2">@(!string.IsNullOrWhiteSpace(ticket.Asiento?.Event?.Name) ? ticket.Asiento.Event.Name : "Evento sin titulo")</h5>
+                                                    @if (eventDate > DateTime.MinValue)
+                                                    {
+                                                        <div class="ticket-meta">@eventDate.ToString("dd 'de' MMMM yyyy")</div>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(venue?.Name))
+                                                    {
+                                                        <div class="ticket-meta">@venue.Name</div>
+                                                    }
+                                                    <div class="ticket-meta">@seatLabel(ticket)</div>
+                                                    <div class="ticket-meta fw-semibold mt-1">Orden @orderCode</div>
+                                                </div>
+                                                <div class="col-md-3 text-md-end">
+                                                    <div class="ticket-price-lg text-primary">@ticket.PrecioUnitario.ToString("C")</div>
+                                                    <div class="small text-light mb-3">Comprado el @ticket.Venta?.Fecha.ToString("dd/MM/yyyy")</div>
+                                                    <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id_DetalleVenta" class="btn btn-ticket w-100">Ver boleto</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="ticket-pane" id="pastSection">
+                        @if (!pastTickets.Any())
+                        {
+                            <div class="text-muted small ps-2">Aun no hay eventos pasados.</div>
+                        }
+                        else
+                        {
+                            <div class="row g-4">
+                                @foreach (var ticket in pastTickets)
+                                {
+                                    var eventDate = ticket.Asiento?.Event?.Date ?? DateTime.MinValue;
+                                    var venue = ticket.Asiento?.Event?.Venues?.FirstOrDefault();
+                                    var orderCode = ticket.Venta?.Id_Venta.ToString() ?? ticket.Id_DetalleVenta.ToString();
+                                    <div class="col-12">
+                                        <div class="ticket-card desktop shadow h-100 ticket-card-past">
+                                            <div class="row g-3 align-items-center">
+                                                <div class="col-md-9">
+                                                    <h5 class="fw-bold mb-2 text-light">@(!string.IsNullOrWhiteSpace(ticket.Asiento?.Event?.Name) ? ticket.Asiento.Event.Name : "Evento sin titulo")</h5>
+                                                    @if (eventDate > DateTime.MinValue)
+                                                    {
+                                                        <div class="ticket-meta text-light">@eventDate.ToString("dd 'de' MMMM yyyy")</div>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(venue?.Name))
+                                                    {
+                                                        <div class="ticket-meta text-light">@venue.Name</div>
+                                                    }
+                                                    <div class="ticket-meta text-light">@seatLabel(ticket)</div>
+                                                    <div class="ticket-meta fw-semibold mt-1 text-light">Orden @orderCode</div>
+                                                </div>
+                                                <div class="col-md-3 text-md-end">
+                                                    <div class="ticket-price-lg text-light">@ticket.PrecioUnitario.ToString("C")</div>
+                                                    <div class="small text-light mb-3">Comprado el @ticket.Venta?.Fecha.ToString("dd/MM/yyyy")</div>
+                                                    <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id_DetalleVenta" class="btn btn-ticket btn-outline w-100">Ver boleto</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/tickets-index.js" asp-append-version="true"></script>
