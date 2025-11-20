@@ -1,8 +1,10 @@
 ﻿using BigFourApp.Data;
+using Azure.Storage.Blobs;
 using BigFourApp.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BigFourApp.Models;
+using BigFourApp.Services;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,18 @@ builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.Configure<BlobStorageOptions>(builder.Configuration.GetSection("BlobStorage"));
+var blobOptions = builder.Configuration.GetSection("BlobStorage").Get<BlobStorageOptions>();
+if (blobOptions?.IsConfigured == true)
+{
+    builder.Services.AddSingleton(new BlobServiceClient(blobOptions.ConnectionString!));
+    builder.Services.AddSingleton<IFileStorageService, BlobStorageService>();
+}
+else
+{
+    builder.Services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+}
 
 builder.Services.AddHostedService<NotificationBackgroundService>();
 

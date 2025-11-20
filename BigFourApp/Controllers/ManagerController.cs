@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -9,13 +8,12 @@ using BigFourApp.Models;
 using BigFourApp.Models.Event;
 using BigFourApp.Models.Manager;
 using BigFourApp.Persistence;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using BigFourApp.Services;
 
 namespace BigFourApp.Controllers
 {
@@ -23,16 +21,20 @@ namespace BigFourApp.Controllers
     public class ManagerController : Controller
     {
         private readonly BaseDatos _context;
-        private readonly IWebHostEnvironment _environment;
         private readonly ILogger<ManagerController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IFileStorageService _fileStorageService;
 
-        public ManagerController(BaseDatos context, IWebHostEnvironment environment, ILogger<ManagerController> logger, UserManager<ApplicationUser> userManager)
+        public ManagerController(
+            BaseDatos context,
+            ILogger<ManagerController> logger,
+            UserManager<ApplicationUser> userManager,
+            IFileStorageService fileStorageService)
         {
             _context = context;
-            _environment = environment;
             _logger = logger;
             _userManager = userManager;
+            _fileStorageService = fileStorageService;
         }
 
         [HttpGet]
@@ -429,12 +431,12 @@ namespace BigFourApp.Controllers
             
             if (vm.SeatmapImage != null)
             {
-                var seatmapUrl = await SaveFileAsync(vm.SeatmapImage, "seatmaps");
+                var seatmapUrl = await _fileStorageService.UploadAsync(vm.SeatmapImage, "seatmaps");
                 if (!string.IsNullOrEmpty(seatmapUrl))
                 {
                     if (isEdit)
                     {
-                        TryDeleteAsset(evento.SeatmapUrl);
+                        await _fileStorageService.DeleteAsync(evento.SeatmapUrl);
                     }
                     evento.SeatmapUrl = seatmapUrl;
                 }
@@ -447,7 +449,7 @@ namespace BigFourApp.Controllers
                 if (!string.IsNullOrEmpty(evento.EventImageUrl) &&
                     vm.ImagesToRemove.Contains(evento.EventImageUrl))
                 {
-                    TryDeleteAsset(evento.EventImageUrl);
+                    await _fileStorageService.DeleteAsync(evento.EventImageUrl);
                     evento.EventImageUrl = null;
                 }
             }
@@ -457,61 +459,17 @@ namespace BigFourApp.Controllers
             {
                 // current upload is the main image for the event
                 var file = vm.EventImages.First();
-                var url = await SaveFileAsync(file, "events");
+                var url = await _fileStorageService.UploadAsync(file, "events");
                 if (!string.IsNullOrEmpty(url))
                 {
                     // If editing, deletes the previous image . . hopefully .. 
                     if (isEdit && !string.IsNullOrEmpty(evento.EventImageUrl))
                     {
-                        TryDeleteAsset(evento.EventImageUrl);
+                        await _fileStorageService.DeleteAsync(evento.EventImageUrl);
                     }
 
                     evento.EventImageUrl = url;
                 }
-            }
-        }
-
-        private async Task<string> SaveFileAsync(IFormFile file, string folder)
-        {
-            if (file == null || file.Length == 0)
-            {
-                return string.Empty;
-            }
-
-            var uploadsRoot = Path.Combine(_environment.WebRootPath, "uploads", folder);
-            Directory.CreateDirectory(uploadsRoot);
-
-            var fileName = $"{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsRoot, fileName);
-
-            await using var stream = System.IO.File.Create(filePath);
-            await file.CopyToAsync(stream);
-
-            return $"/uploads/{folder}/{fileName}".Replace("\\", "/");
-        }
-
-        private void TryDeleteAsset(string? relativeUrl)
-        {
-            if (string.IsNullOrWhiteSpace(relativeUrl) || !relativeUrl.StartsWith("/uploads", StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            var localPath = relativeUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-            var fullPath = Path.Combine(_environment.WebRootPath, localPath);
-
-            if (!System.IO.File.Exists(fullPath))
-            {
-                return;
-            }
-
-            try
-            {
-                System.IO.File.Delete(fullPath);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "No se pudo eliminar el archivo {File}", fullPath);
             }
         }
 
