@@ -179,8 +179,7 @@ namespace BigFourApp.Controllers
 
                 var boleto = new Boleto
                 {
-                    Tipo = "General",
-                    Notificar = false,
+                    Notificar = true,
                     CodigoUnico = Guid.NewGuid().ToString("N")
                 };
 

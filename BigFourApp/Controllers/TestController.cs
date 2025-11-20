@@ -92,7 +92,6 @@ public class TestController : Controller
         var boleto = new Boleto
         {
             Notificar = true,
-            Tipo ="Recordatorio"
         };
                 // ----------------------------
                 // 6. Enviar correo igual que el background service
