@@ -51,6 +51,11 @@
                     <span asp-validation-for="EventDateText" class="text-danger"></span>
                 </div>
                 <div class="col-md-4">
+                    <label asp-for="EventTimeText" class="form-label">Hora del evento</label><span class="text-danger ms-1">*</span>
+                    <input asp-for="EventTimeText" type="time" class="form-control" />
+                    <span asp-validation-for="EventTimeText" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
                     <label asp-for="Segment" class="form-label"></label>
                     <input asp-for="Segment" class="form-control" />
                 </div>

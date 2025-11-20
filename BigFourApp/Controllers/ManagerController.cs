@@ -404,13 +404,23 @@ namespace BigFourApp.Controllers
             {
                 ModelState.AddModelError(nameof(vm.EventDateText), "Fecha inválida.");
             }
-
+            // Validar hora
+            if (string.IsNullOrWhiteSpace(vm.EventTimeText))
+            {
+                ModelState.AddModelError(nameof(vm.EventTimeText), "La hora es obligatoria.");
+                return false;
+            }
+            if (!TimeSpan.TryParse(vm.EventTimeText, out var time))
+            {
+                ModelState.AddModelError(nameof(vm.EventTimeText), "Formato de hora inválido.");
+                return false;
+            }
             if (!hasValidDate)
             {
                 return false;
             }
 
-            eventDate = date;
+            eventDate = date + time;
             return true;
         }
 

@@ -30,6 +30,7 @@ namespace BigFourApp.Models.Manager
         [Required]
         [Display(Name = "Fecha del evento")]
         public string? EventDateText { get; set; }
+        public string EventTimeText { get; set; }
 
         [Url]
         [Display(Name = "Url oficial")]
