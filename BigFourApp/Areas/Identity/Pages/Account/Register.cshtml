@@ -4,37 +4,58 @@
     ViewData["Title"] = "Register";
 }
 
-<h2>Create Account</h2>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 420px; border-radius: 1rem;">
 
-<form id="registerForm" method="post">
-    <div class="form-group mb-3">
-        <label asp-for="Input.Email"></label>
-        <input asp-for="Input.Email" class="form-control"/>
-        <span asp-validation-for="Input.Email" class="text-danger"></span>
+        <h2 class="text-center mb-4 fw-bold">Crear Cuenta</h2>
+
+        <form id="registerForm" method="post">
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label fw-semibold"></label>
+                <input asp-for="Input.Email" class="form-control form-control-lg" placeholder="correo@example.com" />
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label fw-semibold"></label>
+                <input asp-for="Input.Password" class="form-control form-control-lg" type="password" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="mb-3">
+                <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold"></label>
+                <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" type="password" placeholder="••••••••" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <!-- EVENT MANAGER OPTION -->
+            <div class="form-check mb-3">
+                <input asp-for="Input.IsEventManager" class="form-check-input" />
+                <label asp-for="Input.IsEventManager" class="form-check-label fw-semibold">
+                    Registrarme como Event Manager
+                </label>
+            </div>
+
+            <!-- SUBMIT -->
+            <button type="submit" class="btn btn-primary btn-lg w-100 mt-2" style="border-radius: .5rem;">
+                Crear Cuenta
+            </button>
+
+        </form>
+
+        <!-- LOGIN LINK -->
+        <div class="text-center mt-4">
+            <p class="text-muted mb-0">¿Ya tienes una cuenta?</p>
+            <a href="/Identity/Account/Login" class="fw-semibold">Iniciar sesión</a>
+        </div>
+
     </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Input.Password"></label>
-        <input asp-for="Input.Password" class="form-control" />
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Input.ConfirmPassword"></label>
-        <input asp-for="Input.ConfirmPassword" class="form-control"/>
-        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <div class="form-check mb-3">
-        <input asp-for="Input.IsEventManager" class="form-check-input"/>
-        <label asp-for="Input.IsEventManager" class="form-check-label">
-            Register as Event Manager
-        </label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Create Account</button>
-</form>
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial"/>
+    <partial name="_ValidationScriptsPartial" />
 }
